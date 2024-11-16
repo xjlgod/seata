@@ -91,7 +91,7 @@ import static org.apache.seata.common.DefaultValues.DEFAULT_ENABLE_BRANCH_ASYNC_
 import static org.apache.seata.common.DefaultValues.DEFAULT_MAX_COMMIT_RETRY_TIMEOUT;
 import static org.apache.seata.common.DefaultValues.DEFAULT_MAX_ROLLBACK_RETRY_TIMEOUT;
 import static org.apache.seata.common.DefaultValues.DEFAULT_ROLLBACKING_RETRY_PERIOD;
-import static org.apache.seata.common.DefaultValues.DEFAULT_ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE;
+import static org.apache.seata.common.DefaultValues.DEFAULT_ROLLBACK_FAILED_UNLOCK_ENABLE;
 import static org.apache.seata.common.DefaultValues.DEFAULT_TIMEOUT_RETRY_PERIOD;
 import static org.apache.seata.common.DefaultValues.DEFAULT_UNDO_LOG_DELETE_PERIOD;
 
@@ -160,7 +160,10 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
             ConfigurationKeys.MAX_ROLLBACK_RETRY_TIMEOUT, DEFAULT_MAX_ROLLBACK_RETRY_TIMEOUT);
 
     private static final boolean ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE = ConfigurationFactory.getInstance().getBoolean(
-            ConfigurationKeys.ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE, DEFAULT_ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE);
+            ConfigurationKeys.ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE, DEFAULT_ROLLBACK_FAILED_UNLOCK_ENABLE);
+
+    private static final boolean ROLLBACK_FAILED_UNLOCK_ENABLE = ConfigurationFactory.getInstance().getBoolean(
+        ConfigurationKeys.ROLLBACK_FAILED_UNLOCK_ENABLE, DEFAULT_ROLLBACK_FAILED_UNLOCK_ENABLE);
 
     private static final int RETRY_DEAD_THRESHOLD = ConfigurationFactory.getInstance()
         .getInt(org.apache.seata.common.ConfigurationKeys.RETRY_DEAD_THRESHOLD, DefaultValues.DEFAULT_RETRY_DEAD_THRESHOLD);
@@ -351,15 +354,15 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
     protected void timeoutCheck() {
         SessionCondition sessionCondition = new SessionCondition(GlobalStatus.Begin);
         sessionCondition.setLazyLoadBranch(true);
-        Collection<GlobalSession> beginGlobalsessions =
+        Collection<GlobalSession> beginGlobalSessions =
             SessionHolder.getRootSessionManager().findGlobalSessions(sessionCondition);
-        if (CollectionUtils.isEmpty(beginGlobalsessions)) {
+        if (CollectionUtils.isEmpty(beginGlobalSessions)) {
             return;
         }
-        if (!beginGlobalsessions.isEmpty() && LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Global transaction timeout check begin, size: {}", beginGlobalsessions.size());
+        if (!beginGlobalSessions.isEmpty() && LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Global transaction timeout check begin, size: {}", beginGlobalSessions.size());
         }
-        SessionHelper.forEach(beginGlobalsessions, globalSession -> {
+        SessionHelper.forEach(beginGlobalSessions, globalSession -> {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         globalSession.getXid() + " " + globalSession.getStatus() + " " + globalSession.getBeginTime() + " "
@@ -382,7 +385,7 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
                 return true;
             });
         });
-        if (!beginGlobalsessions.isEmpty() && LOGGER.isDebugEnabled()) {
+        if (!beginGlobalSessions.isEmpty() && LOGGER.isDebugEnabled()) {
             LOGGER.debug("Global transaction timeout check end. ");
         }
 
@@ -404,7 +407,7 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
         SessionHelper.forEach(rollbackingSessions, rollbackingSession -> {
             try {
                 if (isRetryTimeout(now, MAX_ROLLBACK_RETRY_TIMEOUT, rollbackingSession.getBeginTime())) {
-                    if (ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE) {
+                    if (ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE || ROLLBACK_FAILED_UNLOCK_ENABLE) {
                         rollbackingSession.clean();
                     }
 
@@ -530,7 +533,7 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
         SessionHelper.forEach(needDoRollbackingSessions, rollbackingSession -> {
             try {
                 if (isRetryTimeout(now, MAX_ROLLBACK_RETRY_TIMEOUT, rollbackingSession.getBeginTime())) {
-                    if (ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE) {
+                    if (ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE || ROLLBACK_FAILED_UNLOCK_ENABLE) {
                         rollbackingSession.clean();
                     }
 
