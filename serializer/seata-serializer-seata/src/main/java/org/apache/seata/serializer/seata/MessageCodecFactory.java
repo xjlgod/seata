@@ -19,6 +19,8 @@ package org.apache.seata.serializer.seata;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.seata.core.protocol.transaction.BranchDeleteRequest;
+import org.apache.seata.core.protocol.transaction.BranchDeleteResponse;
 import org.apache.seata.serializer.seata.protocol.BatchResultMessageCodec;
 import org.apache.seata.serializer.seata.protocol.MergeResultMessageCodec;
 import org.apache.seata.serializer.seata.protocol.MergedWarpMessageCodec;
@@ -28,6 +30,8 @@ import org.apache.seata.serializer.seata.protocol.RegisterTMRequestCodec;
 import org.apache.seata.serializer.seata.protocol.RegisterTMResponseCodec;
 import org.apache.seata.serializer.seata.protocol.transaction.BranchCommitRequestCodec;
 import org.apache.seata.serializer.seata.protocol.transaction.BranchCommitResponseCodec;
+import org.apache.seata.serializer.seata.protocol.transaction.BranchDeleteRequestCodec;
+import org.apache.seata.serializer.seata.protocol.transaction.BranchDeleteResponseCodec;
 import org.apache.seata.serializer.seata.protocol.transaction.BranchRegisterRequestCodec;
 import org.apache.seata.serializer.seata.protocol.transaction.BranchRegisterResponseCodec;
 import org.apache.seata.serializer.seata.protocol.transaction.BranchReportRequestCodec;
@@ -136,6 +140,12 @@ public class MessageCodecFactory {
                 break;
             case MessageType.TYPE_BATCH_RESULT_MSG:
                 msgCodec = new BatchResultMessageCodec(version);
+                break;
+            case MessageType.TYPE_BRANCH_DELETE:
+                msgCodec = new BranchDeleteRequestCodec();
+                break;
+            case MessageType.TYPE_BRANCH_DELETE_RESULT:
+                msgCodec = new BranchDeleteResponseCodec();
                 break;
             case MessageType.TYPE_GLOBAL_BEGIN:
                 msgCodec = new GlobalBeginRequestCodec();
@@ -294,6 +304,12 @@ public class MessageCodecFactory {
                 break;
             case MessageType.TYPE_BRANCH_ROLLBACK_RESULT:
                 abstractMessage = new BranchRollbackResponse();
+                break;
+            case MessageType.TYPE_BRANCH_DELETE:
+                abstractMessage = new BranchDeleteRequest();
+                break;
+            case MessageType.TYPE_BRANCH_DELETE_RESULT:
+                abstractMessage = new BranchDeleteResponse();
                 break;
             default:
                 break;

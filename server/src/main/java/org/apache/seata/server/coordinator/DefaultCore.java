@@ -31,6 +31,8 @@ import org.apache.seata.core.logger.StackTraceLogger;
 import org.apache.seata.core.model.BranchStatus;
 import org.apache.seata.core.model.BranchType;
 import org.apache.seata.core.model.GlobalStatus;
+import org.apache.seata.core.protocol.ResultCode;
+import org.apache.seata.core.protocol.transaction.BranchDeleteResponse;
 import org.apache.seata.core.rpc.RemotingServer;
 import org.apache.seata.server.metrics.MetricsPublisher;
 import org.apache.seata.server.session.BranchSession;
@@ -131,6 +133,29 @@ public class DefaultCore implements Core {
     }
 
     @Override
+    public BranchDeleteResponse branchDelete(GlobalSession globalSession, BranchSession branchSession) throws TransactionException {
+        return getCore(branchSession.getBranchType()).branchDelete(globalSession, branchSession);
+    }
+
+    @Override
+    public Boolean doBranchDelete(GlobalSession globalSession, BranchSession branchSession) throws TransactionException {
+        if (globalSession.isSaga()) {
+            return true;
+        }
+        BranchDeleteResponse response = getCore(branchSession.getBranchType()).branchDelete(globalSession, branchSession);
+        if (isXaerNotaTimeout(globalSession, response.getBranchStatus())) {
+            LOGGER.info("Delete branch XAER_NOTA retry timeout, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
+            return true;
+        }
+        if (response.getBranchStatus() == BranchStatus.PhaseTwo_RollbackFailed_Unretryable) {
+            LOGGER.error("Delete branch transaction fail and stop retry, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
+            return true;
+        }
+        return ResultCode.Success.equals(response.getResultCode());
+    }
+
+
+    @Override
     public String begin(String applicationId, String transactionServiceGroup, String name, int timeout)
         throws TransactionException {
         GlobalSession session = GlobalSession.createGlobalSession(applicationId, transactionServiceGroup, name, timeout);
@@ -218,6 +243,10 @@ public class DefaultCore implements Core {
                 if (currentStatus == BranchStatus.PhaseOne_RDONLY
                         && branchSession.getBranchType() == BranchType.XA) {
                     SessionHelper.removeBranch(globalSession, branchSession, !retrying);
+                    return CONTINUE;
+                }
+                // skip the branch session if not retry
+                if (retrying && BranchStatus.STOP_RETRY.equals(currentStatus)) {
                     return CONTINUE;
                 }
                 try {
@@ -322,6 +351,10 @@ public class DefaultCore implements Core {
                     SessionHelper.removeBranch(globalSession, branchSession, !retrying);
                     return CONTINUE;
                 }
+                // skip the branch session if not retry
+                if (retrying && BranchStatus.STOP_RETRY.equals(currentBranchStatus)) {
+                    return CONTINUE;
+                }
                 try {
                     BranchStatus branchStatus = branchRollback(globalSession, branchSession);
                     if (isXaerNotaTimeout(globalSession, branchStatus)) {
@@ -362,7 +395,7 @@ public class DefaultCore implements Core {
 
         // In db mode, lock and branch data residual problems may occur.
         // Therefore, execution needs to be delayed here and cannot be executed synchronously.
-        if (success) {
+        if (success && globalSession.getBranchSessions().isEmpty()) {
             SessionHelper.endRollbacked(globalSession, retrying);
             LOGGER.info("Rollback global transaction successfully, xid = {}.", globalSession.getXid());
         }

@@ -315,4 +315,8 @@ public interface DefaultValues {
     String DRUID_LOCATION = "lib/sqlparser/druid.jar";
 
     int DEFAULT_ROCKET_MQ_MSG_TIMEOUT = 60 * 1000;
+
+    long DEFAULT_AUTO_RESTART_TIME = 24 * 60 * 60 * 1000;
+
+    long DEFAULT_AUTO_RESTART_PERIOD = 60 * 60 * 1000;
 }

@@ -23,8 +23,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.seata.common.result.SingleResult;
 import org.apache.seata.common.util.CollectionUtils;
 import org.apache.seata.common.util.StringUtils;
+import org.apache.seata.server.console.impl.AbstractLockService;
 import org.apache.seata.server.console.param.GlobalLockParam;
 import org.apache.seata.common.result.PageResult;
 import org.apache.seata.server.console.vo.GlobalLockVO;
@@ -49,7 +51,7 @@ import static java.util.Objects.isNull;
 @Component
 @org.springframework.context.annotation.Configuration
 @ConditionalOnExpression("#{'file'.equals('${lockMode}')}")
-public class GlobalLockFileServiceImpl implements GlobalLockService {
+public class GlobalLockFileServiceImpl extends AbstractLockService implements GlobalLockService {
 
     @Override
     public PageResult<GlobalLockVO> query(GlobalLockParam param) {
@@ -69,6 +71,11 @@ public class GlobalLockFileServiceImpl implements GlobalLockService {
 
         return PageResult.build(convert(result), param.getPageNum(), param.getPageSize());
 
+    }
+
+    @Override
+    public SingleResult<Void> deleteLock(GlobalLockParam param) {
+        throw new IllegalStateException("Not Support to delete lock in file mode");
     }
 
     /**
