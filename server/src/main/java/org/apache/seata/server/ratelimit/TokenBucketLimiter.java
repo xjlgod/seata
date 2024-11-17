@@ -47,7 +47,7 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
     /**
      * limit token number of bucket per second
      */
-    private Integer bucketTokenSecondNum;
+    private Integer bucketTokenNumPerSecond;
 
     /**
      * limit token max number of bucket
@@ -66,10 +66,10 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
 
     public TokenBucketLimiter() {}
 
-    public TokenBucketLimiter(boolean enable, Integer bucketTokenSecondNum,
+    public TokenBucketLimiter(boolean enable, Integer bucketTokenNumPerSecond,
                               Integer bucketTokenMaxNum, Integer bucketTokenInitialNum) {
         this.enable = enable;
-        this.bucketTokenSecondNum = bucketTokenSecondNum;
+        this.bucketTokenNumPerSecond = bucketTokenNumPerSecond;
         this.bucketTokenMaxNum = bucketTokenMaxNum;
         this.bucketTokenInitialNum = bucketTokenInitialNum;
         initBucket();
@@ -80,7 +80,7 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
         final Configuration config = ConfigurationFactory.getInstance();
         this.enable = config.getBoolean(ConfigurationKeys.RATE_LIMIT_ENABLE);
         if (this.enable) {
-            String tokenSecondNum = config.getConfig(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_SECOND_NUM);
+            String tokenSecondNum = config.getConfig(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND);
             if (StringUtils.isBlank(tokenSecondNum)) {
                 throw new IllegalArgumentException("rate limiter tokenSecondNum is blank");
             }
@@ -92,12 +92,12 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
             if (StringUtils.isBlank(tokenInitialNum)) {
                 throw new IllegalArgumentException("rate limiter tokenInitialNum is blank");
             }
-            this.bucketTokenSecondNum = Integer.parseInt(tokenSecondNum);
+            this.bucketTokenNumPerSecond = Integer.parseInt(tokenSecondNum);
             this.bucketTokenMaxNum = Integer.parseInt(tokenMaxNum);
             this.bucketTokenInitialNum = Integer.parseInt(tokenInitialNum);
             initBucket();
             LOGGER.info("TokenBucketLimiter init success, tokenSecondNum: {}, tokenMaxNum: {}, tokenInitialNum: {}",
-                    this.bucketTokenSecondNum, this.bucketTokenMaxNum, this.bucketTokenInitialNum);
+                    this.bucketTokenNumPerSecond, this.bucketTokenMaxNum, this.bucketTokenInitialNum);
         }
     }
 
@@ -107,7 +107,7 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
     }
 
     private void initBucket() {
-        Bandwidth limit = Bandwidth.classic(this.bucketTokenMaxNum, Refill.greedy(this.bucketTokenSecondNum,
+        Bandwidth limit = Bandwidth.classic(this.bucketTokenMaxNum, Refill.greedy(this.bucketTokenNumPerSecond,
                 Duration.ofSeconds(1)));
         Bucket bucket = Bucket.builder().addLimit(limit).build();
         if (this.bucketTokenInitialNum > 0) {

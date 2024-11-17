@@ -1066,9 +1066,9 @@ public interface ConfigurationKeys {
     String RATE_LIMIT_PREFIX = SERVER_PREFIX + "ratelimit.";
 
     /**
-     * The constant RATE_LIMIT_BUCKET_TOKEN_SECOND_NUM.
+     * The constant RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND.
      */
-    String RATE_LIMIT_BUCKET_TOKEN_SECOND_NUM = RATE_LIMIT_PREFIX + "bucketTokenSecondNum";
+    String RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND = RATE_LIMIT_PREFIX + "bucketTokenNumPerSecond";
 
     /**
      * The constant RATE_LIMIT_ENABLE.

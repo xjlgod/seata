@@ -32,7 +32,7 @@ public class ServerRateLimitProperties {
     /**
      * limit token number of bucket per second
      */
-    private Integer bucketTokenSecondNum;
+    private Integer bucketTokenNumPerSecond;
 
     /**
      * limit token max number of bucket
@@ -52,12 +52,12 @@ public class ServerRateLimitProperties {
         this.enable = enable;
     }
 
-    public Integer getBucketTokenSecondNum() {
-        return bucketTokenSecondNum;
+    public Integer getBucketTokenNumPerSecond() {
+        return bucketTokenNumPerSecond;
     }
 
-    public void setBucketTokenSecondNum(Integer bucketTokenSecondNum) {
-        this.bucketTokenSecondNum = bucketTokenSecondNum;
+    public void setBucketTokenNumPerSecond(Integer bucketTokenNumPerSecond) {
+        this.bucketTokenNumPerSecond = bucketTokenNumPerSecond;
     }
 
     public Integer getBucketTokenMaxNum() {
