@@ -197,9 +197,6 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
 
     private final ThreadPoolExecutor branchRemoveExecutor;
 
-    private static final boolean RATE_LIMIT_ENABLE = ConfigurationFactory.getInstance().getBoolean(
-            org.apache.seata.common.ConfigurationKeys.RATE_LIMIT_ENABLE, false);
-
     private RateLimiterHandler rateLimiterHandler;
 
     private RemotingServer remotingServer;
@@ -233,9 +230,7 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
             branchRemoveExecutor = null;
         }
         // create server rate limter
-        if (RATE_LIMIT_ENABLE) {
-            rateLimiterHandler = RateLimiterHandler.getInstance();
-        }
+        rateLimiterHandler = RateLimiterHandler.getInstance();
     }
 
     public static DefaultCoordinator getInstance(RemotingServer remotingServer) {
@@ -777,12 +772,6 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
     }
 
     private AbstractResultMessage processRateLimit(AbstractMessage request, RpcContext context) {
-        if (RATE_LIMIT_ENABLE) {
-            AbstractResultMessage resultMessage = rateLimiterHandler.handle(request, context);
-            if (resultMessage != null) {
-                return resultMessage;
-            }
-        }
-        return null;
+        return rateLimiterHandler.handle(request, context);
     }
 }

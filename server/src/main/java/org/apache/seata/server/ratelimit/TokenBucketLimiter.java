@@ -96,7 +96,7 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
             this.bucketTokenMaxNum = Integer.parseInt(tokenMaxNum);
             this.bucketTokenInitialNum = Integer.parseInt(tokenInitialNum);
             initBucket();
-            LOGGER.info("TokenBucketLimiter init success, tokenSecondNum: {}, tokenMaxNum: {}, tokenInitialNum: {}",
+            LOGGER.info("TokenBucketLimiter init success, bucketTokenNumPerSecond: {}, tokenMaxNum: {}, tokenInitialNum: {}",
                     this.bucketTokenNumPerSecond, this.bucketTokenMaxNum, this.bucketTokenInitialNum);
         }
     }
@@ -104,6 +104,17 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
     @Override
     public boolean canPass() {
         return bucket.tryConsume(1);
+    }
+
+    @Override
+    public void reInit(RateLimiterHandler.RateLimiterHandlerConfig config) {
+        this.enable = config.isEnable();
+        this.bucketTokenNumPerSecond = config.getBucketTokenNumPerSecond();
+        this.bucketTokenMaxNum = config.getBucketTokenMaxNum();
+        this.bucketTokenInitialNum = config.getBucketTokenInitialNum();
+        initBucket();
+        LOGGER.info("TokenBucketLimiter reInit success, bucketTokenNumPerSecond: {}, tokenMaxNum: {}, tokenInitialNum: {}",
+                this.bucketTokenNumPerSecond, this.bucketTokenMaxNum, this.bucketTokenInitialNum);
     }
 
     private void initBucket() {

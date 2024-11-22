@@ -199,11 +199,6 @@ public class MetricsSubscriber {
 
     @Subscribe
     public void recordRateLimitEventForMetrics(RateLimitEvent event) {
-        registry.getCounter(MeterIdConstants.COUNTER_RATE_LIMIT
-                .withTag(LIMIT_TYPE_KEY, event.getLimitType())
-                .withTag(APP_ID_KEY, event.getApplicationId())
-                .withTag(CLIENT_ID_KEY, event.getClientId())
-                .withTag(SERVER_IP_ADDRESS_AND_PORT_KEY, event.getServerIpAddressAndPort())).increase(1);
         registry.getSummary(MeterIdConstants.SUMMARY_RATE_LIMIT
                 .withTag(LIMIT_TYPE_KEY, event.getLimitType())
                 .withTag(APP_ID_KEY, event.getApplicationId())

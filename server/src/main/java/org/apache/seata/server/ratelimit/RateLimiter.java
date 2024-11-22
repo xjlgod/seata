@@ -26,4 +26,9 @@ public interface RateLimiter {
      * @return the boolean
      */
     boolean canPass();
+
+    /**
+     * reInit reinitialize the rate limiter
+     */
+    void reInit(RateLimiterHandler.RateLimiterHandlerConfig config);
 }

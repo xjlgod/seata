@@ -496,4 +496,11 @@ public interface DefaultValues {
      * The constant DEFAULT_ROCKET_MQ_MSG_TIMEOUT.
      */
     int DEFAULT_ROCKET_MQ_MSG_TIMEOUT = 60 * 1000;
+
+    /**
+     * The constant DEFAULT_RATE_LIMIT_ENABLE.
+     */
+    boolean DEFAULT_RATE_LIMIT_ENABLE = false;
+
+
 }
