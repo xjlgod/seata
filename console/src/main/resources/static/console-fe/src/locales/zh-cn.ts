@@ -77,6 +77,8 @@ const zhCn: ILocale = {
     inputFilterPlaceholder: '请输入筛选条件',
     resetButtonLabel: '重置',
     searchButtonLabel: '搜索',
+    operateTitle: '操作',
+    deleteGlobalLockTitle: '删除全局锁',
   },
 };
 

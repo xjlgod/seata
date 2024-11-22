@@ -77,6 +77,8 @@ const enUs: ILocale = {
     inputFilterPlaceholder: 'Please enter filter criteria',
     resetButtonLabel: 'Reset',
     searchButtonLabel: 'Search',
+    operateTitle: 'operate',
+    deleteGlobalLockTitle: 'Delete global lock',
   },
 };
 
