@@ -121,7 +121,7 @@ seata:
       bucketTokenInitialNum: 1
   store:
     # support: file
-    mode: file
+    mode: raft
     file:
       dir: sessionStore
       max-branch-session-size: 16384
