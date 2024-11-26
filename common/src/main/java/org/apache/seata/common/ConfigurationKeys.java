@@ -1063,25 +1063,25 @@ public interface ConfigurationKeys {
     /**
      * The constant RATE_LIMIT_PREFIX.
      */
-    String RATE_LIMIT_PREFIX = SERVER_PREFIX + "ratelimit.";
+    String RATE_LIMIT_PREFIX = SERVER_PREFIX + "ratelimit";
 
     /**
      * The constant RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND.
      */
-    String RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND = RATE_LIMIT_PREFIX + "bucketTokenNumPerSecond";
+    String RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND = RATE_LIMIT_PREFIX + ".bucketTokenNumPerSecond";
 
     /**
      * The constant RATE_LIMIT_ENABLE.
      */
-    String RATE_LIMIT_ENABLE = RATE_LIMIT_PREFIX + "enable";
+    String RATE_LIMIT_ENABLE = RATE_LIMIT_PREFIX + ".enable";
 
     /**
      * The constant RATE_LIMIT_BUCKET_TOKEN_MAX_NUM.
      */
-    String RATE_LIMIT_BUCKET_TOKEN_MAX_NUM = RATE_LIMIT_PREFIX + "bucketTokenMaxNum";
+    String RATE_LIMIT_BUCKET_TOKEN_MAX_NUM = RATE_LIMIT_PREFIX + ".bucketTokenMaxNum";
 
     /**
      * The constant RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM.
      */
-    String RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM = RATE_LIMIT_PREFIX + "bucketTokenInitialNum";
+    String RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM = RATE_LIMIT_PREFIX + ".bucketTokenInitialNum";
 }

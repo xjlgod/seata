@@ -30,5 +30,19 @@ public interface RateLimiter {
     /**
      * reInit reinitialize the rate limiter
      */
-    void reInit(RateLimiterHandler.RateLimiterHandlerConfig config);
+    void reInit(RateLimiterHandlerConfig config);
+
+    /**
+     * obtainConfig obtain the config of rate limiter
+     *
+     * @return
+     */
+    RateLimiterHandlerConfig obtainConfig();
+
+    /**
+     * whether the rate limiter is enabled
+     *
+     * @return the boolean
+     */
+    boolean isEnable();
 }

@@ -20,7 +20,7 @@ import org.apache.seata.common.ConfigurationKeys;
 import org.apache.seata.common.executor.Initialize;
 import org.apache.seata.common.loader.LoadLevel;
 import org.apache.seata.common.loader.Scope;
-import org.apache.seata.common.util.StringUtils;
+import org.apache.seata.common.util.NumberUtils;
 import org.apache.seata.config.Configuration;
 import org.apache.seata.config.ConfigurationFactory;
 
@@ -64,6 +64,10 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
      */
     private Bucket bucket;
 
+    private final int DEFAULT_BUCKET_TOKEN_NUM_PER_SECOND = Integer.MAX_VALUE;
+    private final int DEFAULT_BUCKET_TOKEN_MAX_NUM = Integer.MAX_VALUE;
+    private final int DEFAULT_BUCKET_TOKEN_INITIAL_NUM = Integer.MAX_VALUE;
+
     public TokenBucketLimiter() {}
 
     public TokenBucketLimiter(boolean enable, Integer bucketTokenNumPerSecond,
@@ -79,22 +83,20 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
     public void init() {
         final Configuration config = ConfigurationFactory.getInstance();
         this.enable = config.getBoolean(ConfigurationKeys.RATE_LIMIT_ENABLE);
+        this.bucketTokenNumPerSecond = NumberUtils.toInt(
+                config.getConfig(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND),
+                DEFAULT_BUCKET_TOKEN_NUM_PER_SECOND
+        );
+        this.bucketTokenMaxNum = NumberUtils.toInt(
+                config.getConfig(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_MAX_NUM),
+                DEFAULT_BUCKET_TOKEN_MAX_NUM
+        );
+        this.bucketTokenInitialNum = NumberUtils.toInt(
+                config.getConfig(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM),
+                DEFAULT_BUCKET_TOKEN_INITIAL_NUM
+        );
+
         if (this.enable) {
-            String tokenSecondNum = config.getConfig(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND);
-            if (StringUtils.isBlank(tokenSecondNum)) {
-                throw new IllegalArgumentException("rate limiter tokenSecondNum is blank");
-            }
-            String tokenMaxNum = config.getConfig(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_MAX_NUM);
-            if (StringUtils.isBlank(tokenMaxNum)) {
-                throw new IllegalArgumentException("rate limiter tokenMaxNum is blank");
-            }
-            String tokenInitialNum = config.getConfig(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM);
-            if (StringUtils.isBlank(tokenInitialNum)) {
-                throw new IllegalArgumentException("rate limiter tokenInitialNum is blank");
-            }
-            this.bucketTokenNumPerSecond = Integer.parseInt(tokenSecondNum);
-            this.bucketTokenMaxNum = Integer.parseInt(tokenMaxNum);
-            this.bucketTokenInitialNum = Integer.parseInt(tokenInitialNum);
             initBucket();
             LOGGER.info("TokenBucketLimiter init success, bucketTokenNumPerSecond: {}, tokenMaxNum: {}, tokenInitialNum: {}",
                     this.bucketTokenNumPerSecond, this.bucketTokenMaxNum, this.bucketTokenInitialNum);
@@ -107,14 +109,34 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
     }
 
     @Override
-    public void reInit(RateLimiterHandler.RateLimiterHandlerConfig config) {
+    public void reInit(RateLimiterHandlerConfig config) {
         this.enable = config.isEnable();
         this.bucketTokenNumPerSecond = config.getBucketTokenNumPerSecond();
         this.bucketTokenMaxNum = config.getBucketTokenMaxNum();
         this.bucketTokenInitialNum = config.getBucketTokenInitialNum();
-        initBucket();
-        LOGGER.info("TokenBucketLimiter reInit success, bucketTokenNumPerSecond: {}, tokenMaxNum: {}, tokenInitialNum: {}",
-                this.bucketTokenNumPerSecond, this.bucketTokenMaxNum, this.bucketTokenInitialNum);
+
+        if (this.enable) {
+            initBucket();
+            LOGGER.info("TokenBucketLimiter reInit success, bucketTokenNumPerSecond: {}, tokenMaxNum: {}, tokenInitialNum: {}",
+                    this.bucketTokenNumPerSecond, this.bucketTokenMaxNum, this.bucketTokenInitialNum);
+            return;
+        }
+        LOGGER.info("TokenBucketLimiter reInit success, The limiter is disabled");
+    }
+
+    @Override
+    public RateLimiterHandlerConfig obtainConfig() {
+        RateLimiterHandlerConfig config = new RateLimiterHandlerConfig();
+        config.setEnable(this.enable);
+        config.setBucketTokenNumPerSecond(this.bucketTokenNumPerSecond);
+        config.setBucketTokenMaxNum(this.bucketTokenMaxNum);
+        config.setBucketTokenInitialNum(this.bucketTokenInitialNum);
+        return config;
+    }
+
+    @Override
+    public boolean isEnable() {
+        return this.enable;
     }
 
     private void initBucket() {

@@ -22,8 +22,8 @@ import org.apache.seata.common.util.NumberUtils;
 import org.apache.seata.config.CachedConfigurationChangeListener;
 import org.apache.seata.config.Configuration;
 import org.apache.seata.config.ConfigurationChangeEvent;
-import org.apache.seata.config.ConfigurationFactory;
 import org.apache.seata.common.ConfigurationKeys;
+import org.apache.seata.config.ConfigurationFactory;
 import org.apache.seata.core.exception.TransactionExceptionCode;
 import org.apache.seata.core.protocol.AbstractMessage;
 import org.apache.seata.core.protocol.AbstractResultMessage;
@@ -32,32 +32,41 @@ import org.apache.seata.core.protocol.transaction.GlobalBeginRequest;
 import org.apache.seata.core.protocol.transaction.GlobalBeginResponse;
 import org.apache.seata.core.rpc.RpcContext;
 import org.apache.seata.server.metrics.MetricsPublisher;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * RateLimiterHandler
  */
-public class RateLimiterHandler {
-
+public class RateLimiterHandler implements CachedConfigurationChangeListener {
+    /**
+     * The instance of RateLimiterHandler
+     */
     private static volatile RateLimiterHandler instance;
 
+    /**
+     * The instance of RateLimiter
+     */
     private final RateLimiter rateLimiter;
 
-    private static final RateLimiterHandlerConfig LISTENER = new RateLimiterHandlerConfig();
-    private static final Configuration CONFIG = ConfigurationFactory.getInstance();
-
-    static {
-        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_PREFIX, LISTENER);
-        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND, LISTENER);
-        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_MAX_NUM, LISTENER);
-        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM, LISTENER);
-    }
+    /**
+     * The config of RateLimiterHandler
+     */
+    private final RateLimiterHandlerConfig config;
 
     public RateLimiterHandler(RateLimiter rateLimiter) {
         this.rateLimiter = rateLimiter;
+        this.config = new RateLimiterHandlerConfig();
     }
 
     private RateLimiterHandler() {
         rateLimiter = EnhancedServiceLoader.load(RateLimiter.class);
+        config = rateLimiter.obtainConfig();
+
+        Configuration CONFIG = ConfigurationFactory.getInstance();
+        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_ENABLE, this);
+        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND, this);
+        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_MAX_NUM, this);
+        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM, this);
     }
 
     public static RateLimiterHandler getInstance() {
@@ -71,8 +80,27 @@ public class RateLimiterHandler {
         return instance;
     }
 
+    @Override
+    public void onChangeEvent(ConfigurationChangeEvent event) {
+        String dataId = event.getDataId();
+        String newValue = event.getNewValue();
+        if (ConfigurationKeys.RATE_LIMIT_ENABLE.equals(dataId)) {
+            config.setEnable(Boolean.parseBoolean(newValue));
+        }
+        if (ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND.equals(dataId)) {
+            config.setBucketTokenNumPerSecond(NumberUtils.toInt(newValue, config.getBucketTokenNumPerSecond()));
+        }
+        if (ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_MAX_NUM.equals(dataId)) {
+            config.setBucketTokenMaxNum(NumberUtils.toInt(newValue, config.getBucketTokenMaxNum()));
+        }
+        if (ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM.equals(dataId)) {
+            config.setBucketTokenInitialNum(NumberUtils.toInt(newValue, config.getBucketTokenInitialNum()));
+        }
+        rateLimiter.reInit(config);
+    }
+
     public AbstractResultMessage handle(AbstractMessage request, RpcContext rpcContext) {
-        if (!LISTENER.isEnable()) {
+        if (!rateLimiter.isEnable()) {
             return null;
         }
 
@@ -89,93 +117,5 @@ public class RateLimiterHandler {
             }
         }
         return null;
-    }
-
-    /**
-     * RateLimiterHandlerConfig
-     */
-     static class RateLimiterHandlerConfig implements CachedConfigurationChangeListener {
-        /**
-         * whether enable server rate limit
-         */
-        private volatile boolean enable;
-
-        /**
-         * limit token number of bucket per second
-         */
-        private volatile int bucketTokenNumPerSecond;
-
-        /**
-         * limit token max number of bucket
-         */
-        private volatile int bucketTokenMaxNum;
-
-        /**
-         * limit token initial number of bucket
-         */
-        private volatile int bucketTokenInitialNum;
-
-        private final int DEFAULT_BUCKET_TOKEN_NUM_PER_SECOND = Integer.MAX_VALUE;
-        private final int DEFAULT_BUCKET_TOKEN_MAX_NUM = Integer.MAX_VALUE;
-        private final int DEFAULT_BUCKET_TOKEN_INITIAL_NUM = Integer.MAX_VALUE;
-
-        private static final Configuration CONFIG = ConfigurationFactory.getInstance();
-
-        public RateLimiterHandlerConfig() {
-            enable = CONFIG.getBoolean(ConfigurationKeys.RATE_LIMIT_ENABLE);
-            bucketTokenNumPerSecond = CONFIG.getInt(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND);
-            bucketTokenMaxNum = CONFIG.getInt(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_MAX_NUM);
-            bucketTokenInitialNum = CONFIG.getInt(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM);
-        }
-
-        @Override
-        public void onChangeEvent(ConfigurationChangeEvent event) {
-            String dataId = event.getDataId();
-            String newValue = event.getNewValue();
-            if (ConfigurationKeys.RATE_LIMIT_ENABLE.equals(dataId)) {
-                enable = Boolean.parseBoolean(newValue);
-            }
-            if (ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND.equals(dataId)) {
-                bucketTokenNumPerSecond = NumberUtils.toInt(newValue, DEFAULT_BUCKET_TOKEN_NUM_PER_SECOND);
-            }
-            if (ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_MAX_NUM.equals(dataId)) {
-                bucketTokenMaxNum = NumberUtils.toInt(newValue, DEFAULT_BUCKET_TOKEN_MAX_NUM);
-            }
-            if (ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM.equals(dataId)) {
-                bucketTokenInitialNum = NumberUtils.toInt(newValue, DEFAULT_BUCKET_TOKEN_INITIAL_NUM);
-            }
-        }
-
-        public boolean isEnable() {
-            return enable;
-        }
-
-        public void setEnable(boolean enable) {
-            this.enable = enable;
-        }
-
-        public int getBucketTokenNumPerSecond() {
-            return bucketTokenNumPerSecond;
-        }
-
-        public void setBucketTokenNumPerSecond(int bucketTokenNumPerSecond) {
-            this.bucketTokenNumPerSecond = bucketTokenNumPerSecond;
-        }
-
-        public int getBucketTokenMaxNum() {
-            return bucketTokenMaxNum;
-        }
-
-        public void setBucketTokenMaxNum(int bucketTokenMaxNum) {
-            this.bucketTokenMaxNum = bucketTokenMaxNum;
-        }
-
-        public int getBucketTokenInitialNum() {
-            return bucketTokenInitialNum;
-        }
-
-        public void setBucketTokenInitialNum(int bucketTokenInitialNum) {
-            this.bucketTokenInitialNum = bucketTokenInitialNum;
-        }
     }
 }
