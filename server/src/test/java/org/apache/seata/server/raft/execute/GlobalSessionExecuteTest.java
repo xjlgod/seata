@@ -127,6 +127,7 @@ class GlobalSessionExecuteTest {
         session.setApplicationData("hello, world");
         session.setTransactionId(123);
         session.setBeginTime(System.currentTimeMillis());
+        session.setGmtModified(System.currentTimeMillis());
         return session;
     }
 

@@ -136,6 +136,7 @@ class BranchSessionExecuteTest {
         session.setApplicationData("hello, world");
         session.setTransactionId(123);
         session.setBeginTime(System.currentTimeMillis());
+        session.setGmtModified(System.currentTimeMillis());
         return session;
     }
 
@@ -150,6 +151,7 @@ class BranchSessionExecuteTest {
         session.setLockKey("test");
         session.setBranchType(BranchType.AT);
         session.setApplicationData("hello, world");
+        session.setGmtModified(System.currentTimeMillis());
         return session;
     }
 
