@@ -115,7 +115,7 @@ seata:
       branch-async-queue-size: 5000 #branch async remove queue size
       enable-branch-async-remove: false #enable to asynchronous remove branchSession
     ratelimit:
-      enable: true
+      enable: false
       bucketTokenSecondNum: 1
       bucketTokenMaxNum: 1
       bucketTokenInitialNum: 1

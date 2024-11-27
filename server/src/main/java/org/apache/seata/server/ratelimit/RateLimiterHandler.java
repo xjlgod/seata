@@ -32,7 +32,6 @@ import org.apache.seata.core.protocol.transaction.GlobalBeginRequest;
 import org.apache.seata.core.protocol.transaction.GlobalBeginResponse;
 import org.apache.seata.core.rpc.RpcContext;
 import org.apache.seata.server.metrics.MetricsPublisher;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * RateLimiterHandler
@@ -62,11 +61,11 @@ public class RateLimiterHandler implements CachedConfigurationChangeListener {
         rateLimiter = EnhancedServiceLoader.load(RateLimiter.class);
         config = rateLimiter.obtainConfig();
 
-        Configuration CONFIG = ConfigurationFactory.getInstance();
-        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_ENABLE, this);
-        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND, this);
-        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_MAX_NUM, this);
-        CONFIG.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM, this);
+        Configuration config = ConfigurationFactory.getInstance();
+        config.addConfigListener(ConfigurationKeys.RATE_LIMIT_ENABLE, this);
+        config.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_NUM_PER_SECOND, this);
+        config.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_MAX_NUM, this);
+        config.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM, this);
     }
 
     public static RateLimiterHandler getInstance() {
