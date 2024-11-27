@@ -64,9 +64,9 @@ public class TokenBucketLimiter implements RateLimiter, Initialize {
      */
     private Bucket bucket;
 
-    private final int DEFAULT_BUCKET_TOKEN_NUM_PER_SECOND = Integer.MAX_VALUE;
-    private final int DEFAULT_BUCKET_TOKEN_MAX_NUM = Integer.MAX_VALUE;
-    private final int DEFAULT_BUCKET_TOKEN_INITIAL_NUM = Integer.MAX_VALUE;
+    private static final int DEFAULT_BUCKET_TOKEN_NUM_PER_SECOND = Integer.MAX_VALUE;
+    private static final int DEFAULT_BUCKET_TOKEN_MAX_NUM = Integer.MAX_VALUE;
+    private static final int DEFAULT_BUCKET_TOKEN_INITIAL_NUM = Integer.MAX_VALUE;
 
     public TokenBucketLimiter() {}
 
