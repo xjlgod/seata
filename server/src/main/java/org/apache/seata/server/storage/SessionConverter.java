@@ -17,7 +17,6 @@
 package org.apache.seata.server.storage;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -107,7 +106,6 @@ public class SessionConverter {
         globalTransactionDO.setTransactionName(globalSession.getTransactionName());
         globalTransactionDO.setTransactionServiceGroup(globalSession.getTransactionServiceGroup());
         globalTransactionDO.setApplicationData(globalSession.getApplicationData());
-        globalTransactionDO.setGmtModified(new Date(globalSession.getGmtModified()));
     }
 
     public static BranchTransactionDO convertBranchTransactionDO(SessionStorable session) {
@@ -141,7 +139,6 @@ public class SessionConverter {
         branchTransactionDO.setApplicationData(branchSession.getApplicationData());
         branchTransactionDO.setResourceId(branchSession.getResourceId());
         branchTransactionDO.setStatus(branchSession.getStatus().getCode());
-        branchTransactionDO.setGmtModified(new Date(branchSession.getGmtModified()));
         if (branchTransactionDO instanceof BranchTransactionDTO) {
             ((BranchTransactionDTO)branchTransactionDO).setLockKey(branchSession.getLockKey());
         }
