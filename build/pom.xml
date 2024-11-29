@@ -70,6 +70,8 @@
     </scm>
 
     <properties>
+        <sonar.organization>xjlgod</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <!-- seata version -->
         <revision>2.3.0-SNAPSHOT</revision>
 
