@@ -106,7 +106,7 @@ public class RateLimiterHandler implements CachedConfigurationChangeListener {
         if (request instanceof GlobalBeginRequest) {
             if (!rateLimiter.canPass()) {
                 GlobalBeginResponse response = new GlobalBeginResponse();
-                response.setTransactionExceptionCode(TransactionExceptionCode.BeginFailedRateLimited);
+                response.setTransactionExceptionCode(TransactionExceptionCode.BeginFailed);
                 response.setResultCode(ResultCode.Failed);
                 RateLimitInfo rateLimitInfo = RateLimitInfo.generateRateLimitInfo(rpcContext.getApplicationId(),
                         RateLimitInfo.GLOBAL_BEGIN_FAILED, rpcContext.getClientId(), XID.getIpAddressAndPort());

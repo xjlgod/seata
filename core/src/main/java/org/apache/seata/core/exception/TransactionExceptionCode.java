@@ -139,12 +139,7 @@ public enum TransactionExceptionCode {
     /**
      * Broken transaction exception code.
      */
-    Broken,
-
-    /**
-     * BeginFailedRateLimited
-     */
-    BeginFailedRateLimited;
+    Broken;
 
 
     /**

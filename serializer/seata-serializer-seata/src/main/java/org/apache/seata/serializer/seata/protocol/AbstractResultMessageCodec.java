@@ -16,12 +16,12 @@
  */
 package org.apache.seata.serializer.seata.protocol;
 
+import java.nio.ByteBuffer;
+
 import io.netty.buffer.ByteBuf;
 import org.apache.seata.common.util.StringUtils;
 import org.apache.seata.core.protocol.AbstractResultMessage;
 import org.apache.seata.core.protocol.ResultCode;
-
-import java.nio.ByteBuffer;
 
 /**
  * The type Abstract result message codec.
