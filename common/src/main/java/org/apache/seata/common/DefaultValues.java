@@ -503,4 +503,8 @@ public interface DefaultValues {
     boolean DEFAULT_RATE_LIMIT_ENABLE = false;
 
 
+    /**
+     * The constant DEFAULT_RAFT_SSL_ENABLED.
+     */
+    boolean DEFAULT_RAFT_SSL_ENABLED = false;
 }

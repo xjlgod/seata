@@ -14,18 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.seata.saga.statelang.domain.impl;
+package org.apache.seata.common.util;
 
-import org.apache.seata.saga.statelang.domain.StateType;
-import org.apache.seata.saga.statelang.domain.SucceedEndState;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
- * SucceedEndState
  *
  */
-public class SucceedEndStateImpl extends BaseState implements SucceedEndState {
+class UUIDGeneratorTest {
 
-    public SucceedEndStateImpl() {
-        setType(StateType.SUCCEED);
+    @Test
+    void generateUUID() {
+        Assertions.assertTrue(UUIDGenerator.generateUUID() > 0);
     }
 }
