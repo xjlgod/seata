@@ -19,7 +19,6 @@ package org.apache.seata.saga.engine.tm;
 import org.apache.seata.common.exception.FrameworkErrorCode;
 import org.apache.seata.common.util.StringUtils;
 import org.apache.seata.core.exception.TransactionException;
-import org.apache.seata.core.exception.TransactionExceptionCode;
 import org.apache.seata.core.model.BranchStatus;
 import org.apache.seata.core.model.BranchType;
 import org.apache.seata.core.model.GlobalStatus;

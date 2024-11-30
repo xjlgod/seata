@@ -16,6 +16,8 @@
  */
 package org.apache.seata.tm.api;
 
+import java.util.List;
+
 import org.apache.seata.common.exception.FrameworkErrorCode;
 import org.apache.seata.common.exception.FrameworkException;
 import org.apache.seata.common.exception.ShouldNeverHappenException;
@@ -32,8 +34,6 @@ import org.apache.seata.tm.api.transaction.TransactionHookManager;
 import org.apache.seata.tm.api.transaction.TransactionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * Template of executing business logic with a global transaction.
