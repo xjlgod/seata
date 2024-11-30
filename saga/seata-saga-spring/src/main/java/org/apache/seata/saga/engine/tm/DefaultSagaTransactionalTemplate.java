@@ -93,12 +93,7 @@ public class DefaultSagaTransactionalTemplate
             tx.begin(txInfo.getTimeOut(), txInfo.getName());
             triggerAfterBegin(tx);
         } catch (TransactionException txe) {
-            if (TransactionExceptionCode.BeginFailedRateLimited.equals(txe.getCode())) {
-                throw new TransactionalExecutor.ExecutionException(tx, txe,
-                        TransactionalExecutor.Code.BeginFailedRateLimited);
-            }
             throw new TransactionalExecutor.ExecutionException(tx, txe, TransactionalExecutor.Code.BeginFailure);
-
         }
         return tx;
     }

@@ -248,10 +248,6 @@ public class GlobalTransactionalInterceptorHandler extends AbstractProxyInvocati
                     succeed = false;
                     failureHandler.onBeginFailure(globalTransaction, cause);
                     throw cause;
-                case BeginFailedRateLimited:
-                    succeed = false;
-                    failureHandler.onBeginRateLimitedFailure(globalTransaction, cause);
-                    throw cause;
                 case CommitFailure:
                     succeed = false;
                     failureHandler.onCommitFailure(globalTransaction, cause);

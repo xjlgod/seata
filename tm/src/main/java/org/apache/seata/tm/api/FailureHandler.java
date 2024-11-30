@@ -31,14 +31,6 @@ public interface FailureHandler<T extends BaseTransaction> {
     void onBeginFailure(T tx, Throwable cause);
 
     /**
-     * On begin rate limited failure
-     *
-     * @param globalTransaction
-     * @param cause
-     */
-    void onBeginRateLimitedFailure(GlobalTransaction globalTransaction, Throwable cause);
-
-    /**
      * On commit failure.
      *
      * @param tx    the tx

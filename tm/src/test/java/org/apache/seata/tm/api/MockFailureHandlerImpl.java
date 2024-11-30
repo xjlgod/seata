@@ -23,11 +23,6 @@ public class MockFailureHandlerImpl implements FailureHandler{
     }
 
     @Override
-    public void onBeginRateLimitedFailure(GlobalTransaction globalTransaction, Throwable cause) {
-
-    }
-
-    @Override
     public void onCommitFailure(BaseTransaction tx, Throwable cause) {
 
     }

@@ -29,9 +29,8 @@ class ResultCodeTest {
     void getByte() {
         Assertions.assertEquals(ResultCode.Failed, ResultCode.get((byte) 0));
         Assertions.assertEquals(ResultCode.Success, ResultCode.get((byte) 1));
-        Assertions.assertEquals(ResultCode.RateLimited, ResultCode.get((byte) 2));
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ResultCode.get((byte) 3);
+            ResultCode.get((byte) 2);
         });
     }
 
@@ -39,15 +38,14 @@ class ResultCodeTest {
     void getInt() {
         Assertions.assertEquals(ResultCode.Failed, ResultCode.get(0));
         Assertions.assertEquals(ResultCode.Success, ResultCode.get(1));
-        Assertions.assertEquals(ResultCode.RateLimited, ResultCode.get(2));
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            ResultCode.get(3);
+            ResultCode.get(2);
         });
     }
 
     @Test
     void values() {
-        Assertions.assertArrayEquals(new ResultCode[]{ResultCode.Failed, ResultCode.Success, ResultCode.RateLimited},
+        Assertions.assertArrayEquals(new ResultCode[]{ResultCode.Failed, ResultCode.Success},
                 ResultCode.values());
     }
 

@@ -51,9 +51,6 @@ public class DefaultTransactionManager implements TransactionManager {
         request.setTransactionName(name);
         request.setTimeout(timeout);
         GlobalBeginResponse response = (GlobalBeginResponse) syncCall(request);
-        if (response.getResultCode() == ResultCode.RateLimited) {
-            throw new TmTransactionException(TransactionExceptionCode.BeginFailedRateLimited, response.getMsg());
-        }
         if (response.getResultCode() == ResultCode.Failed) {
             throw new TmTransactionException(TransactionExceptionCode.BeginFailed, response.getMsg());
         }
@@ -69,7 +66,7 @@ public class DefaultTransactionManager implements TransactionManager {
     }
 
     @Override
-    public GlobalStatus rollback(String xid) throws TransactionException {
+    public GlobalStatus rollback(String xid)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  throws TransactionException {
         GlobalRollbackRequest globalRollback = new GlobalRollbackRequest();
         globalRollback.setXid(xid);
         GlobalRollbackResponse response = (GlobalRollbackResponse) syncCall(globalRollback);

@@ -58,11 +58,6 @@ public class DefaultFailureHandlerImpl implements TMFailureHandler {
     }
 
     @Override
-    public void onBeginRateLimitedFailure(org.apache.seata.tm.api.GlobalTransaction globalTransaction, Throwable cause) {
-        LOGGER.warn("Failed to begin transaction due to RateLimit. ", cause);
-    }
-
-    @Override
     public void onCommitFailure(GlobalTransaction tx, Throwable cause) {
         LOGGER.warn("Failed to commit transaction[" + tx.getXid() + "]", cause);
         TIMER.newTimeout(new CheckTimerTask(tx, GlobalStatus.Committed), SCHEDULE_INTERVAL_SECONDS, TimeUnit.SECONDS);

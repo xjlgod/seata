@@ -77,11 +77,6 @@ public class DefaultFailureHandlerImpl implements FailureHandler {
             SCHEDULE_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
-    @Override
-    public void onBeginRateLimitedFailure(org.apache.seata.tm.api.GlobalTransaction globalTransaction, Throwable cause) {
-        LOGGER.warn("Failed to begin transaction due to RateLimit. ", cause);
-    }
-
     protected class CheckTimerTask implements TimerTask {
 
         private final GlobalTransaction tx;
