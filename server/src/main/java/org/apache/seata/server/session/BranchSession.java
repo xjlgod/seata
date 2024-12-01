@@ -74,7 +74,7 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
 
     private LockStatus lockStatus = Locked;
 
-    private Long gmtModified;
+    private long gmtModified;
 
     private final Map<FileLocker.BucketLockMap, Set<String>> lockHolder;
 
@@ -89,11 +89,11 @@ public class BranchSession implements Lockable, Comparable<BranchSession>, Sessi
         this.lockHolder = branchType == BranchType.AT ? new ConcurrentHashMap<>(8) : Collections.emptyMap();
     }
 
-    public Long getGmtModified() {
+    public long getGmtModified() {
         return gmtModified;
     }
 
-    public void setGmtModified(Long gmtModified) {
+    public void setGmtModified(long gmtModified) {
         this.gmtModified = gmtModified;
     }
 

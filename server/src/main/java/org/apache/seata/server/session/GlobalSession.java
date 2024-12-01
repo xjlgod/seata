@@ -97,7 +97,7 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
 
     private String applicationData;
 
-    private Long gmtModified;
+    private long gmtModified;
 
     private final boolean lazyLoadBranch;
 
@@ -606,11 +606,11 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
         this.active = active;
     }
 
-    public Long getGmtModified() {
+    public long getGmtModified() {
         return gmtModified;
     }
 
-    public void setGmtModified(Long gmtModified) {
+    public void setGmtModified(long gmtModified) {
         this.gmtModified = gmtModified;
     }
 
