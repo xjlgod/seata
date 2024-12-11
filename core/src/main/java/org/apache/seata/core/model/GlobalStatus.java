@@ -133,17 +133,17 @@ public enum GlobalStatus {
     /**
      * Deleting .
      */
-    // Finally: deleting
-    Deleting(18, "global transaction is deleting, willing delete soon"),
+    // Deleting global transaction
+    Deleting(18, "global transaction is deleting"),
 
     /**
-     * The rollback retry Timeout .
+     * Stop commit retry .
      */
     // stop commit  retry
     StopCommitRetry(19,"global transaction is retry commit but stop retry now"),
 
     /**
-     * The rollback retry Timeout .
+     * Stop rollback retry .
      */
     // stop rollback retry
     StopRollbackRetry(20,"global transaction is retry rollback but stop retry now");
