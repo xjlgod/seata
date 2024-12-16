@@ -801,7 +801,7 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
     }
 
     public void queueToRetryCommit() throws TransactionException {
-        if (this.status == GlobalStatus.StopCommitRetry || this.status == GlobalStatus.StopRollbackRetry) {
+        if (this.status == GlobalStatus.StopCommitOrCommitRetry || this.status == GlobalStatus.StopRollbackOrRollbackRetry) {
             return;
         }
         changeGlobalStatus(GlobalStatus.CommitRetrying);
@@ -809,7 +809,7 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
 
     public void queueToRetryRollback() throws TransactionException {
         GlobalStatus currentStatus = this.getStatus();
-        if (currentStatus == GlobalStatus.StopCommitRetry || currentStatus == GlobalStatus.StopRollbackRetry) {
+        if (currentStatus == GlobalStatus.StopCommitOrCommitRetry || currentStatus == GlobalStatus.StopRollbackOrRollbackRetry) {
             return;
         }
         GlobalStatus newStatus;

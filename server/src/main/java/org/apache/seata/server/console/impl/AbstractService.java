@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
@@ -44,10 +45,16 @@ public abstract class AbstractService {
 
     protected final LockManager lockManager = LockerManagerFactory.getLockManager();
 
-    protected static final List<GlobalStatus> RETRY_COMMIT_STATUS = Arrays.asList(GlobalStatus.CommitRetrying,
-            GlobalStatus.Committed);
+    protected static final List<GlobalStatus> RETRY_COMMIT_STATUS = Arrays.asList(GlobalStatus.CommitRetrying);
+
     protected static final List<GlobalStatus> RETRY_ROLLBACK_STATUS = Arrays.asList(GlobalStatus.RollbackRetrying,
             GlobalStatus.TimeoutRollbackRetrying, GlobalStatus.TimeoutRollbacking);
+
+    protected static final List<GlobalStatus> COMMIT_ING_STATUS = Stream.concat(RETRY_COMMIT_STATUS.stream(),
+            Collections.singletonList(GlobalStatus.Committing).stream()).collect(Collectors.toList());
+
+    protected static final List<GlobalStatus> ROLLBACK_ING_STATUS = Stream.concat(RETRY_ROLLBACK_STATUS.stream(),
+            Collections.singletonList(GlobalStatus.Rollbacking).stream()).collect(Collectors.toList());
 
     protected static final List<GlobalStatus> RETRY_STATUS = Stream.concat(RETRY_COMMIT_STATUS.stream(),
             RETRY_ROLLBACK_STATUS.stream()).collect(Collectors.toList());

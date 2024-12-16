@@ -137,16 +137,16 @@ public enum GlobalStatus {
     Deleting(18, "global transaction is deleting"),
 
     /**
-     * Stop commit retry .
+     * Stop commit or commit retry .
      */
-    // stop commit  retry
-    StopCommitRetry(19,"global transaction is retry commit but stop retry now"),
+    // stop commit or commit retry
+    StopCommitOrCommitRetry(19,"global transaction is commit or retry commit but stop now"),
 
     /**
-     * Stop rollback retry .
+     * Stop rollback or rollback retry .
      */
-    // stop rollback retry
-    StopRollbackRetry(20,"global transaction is retry rollback but stop retry now");
+    // stop rollback or rollback retry
+    StopRollbackOrRollbackRetry(20,"global transaction is rollback or retry rollback but stop now");
 
     private final int code;
     private final String desc;

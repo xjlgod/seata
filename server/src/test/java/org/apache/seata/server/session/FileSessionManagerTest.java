@@ -46,7 +46,6 @@ import org.apache.seata.server.store.StoreConfig;
 import org.apache.seata.server.store.StoreConfig.SessionMode;
 import org.apache.seata.server.util.StoreUtil;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.seata.server.session.SessionHolder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -446,12 +445,12 @@ public class FileSessionManagerTest {
             String xid = globalSession.getXid();
             globalSessionService.stopGlobalRetry(xid);
             Assertions.assertEquals(SessionHolder.findGlobalSession(xid).getStatus(),
-                    GlobalStatus.StopCommitRetry);
+                    GlobalStatus.StopCommitOrCommitRetry);
 
             globalSession.changeGlobalStatus(GlobalStatus.RollbackRetrying);
             globalSessionService.stopGlobalRetry(xid);
             Assertions.assertEquals(SessionHolder.findGlobalSession(xid).getStatus(),
-                    GlobalStatus.StopRollbackRetry);
+                    GlobalStatus.StopRollbackOrRollbackRetry);
         } finally {
             for (GlobalSession globalSession : globalSessions) {
                 globalSession.setStatus(GlobalStatus.Committed);
@@ -502,13 +501,13 @@ public class FileSessionManagerTest {
                     globalSessionService.startGlobalRetry(globalSessions.get(0).getXid()));
 
             GlobalSession globalSession = globalSessions.get(1);
-            globalSession.setStatus(GlobalStatus.StopCommitRetry);
+            globalSession.setStatus(GlobalStatus.StopCommitOrCommitRetry);
             String xid = globalSession.getXid();
             globalSessionService.startGlobalRetry(xid);
             Assertions.assertEquals(SessionHolder.findGlobalSession(xid).getStatus(),
                     GlobalStatus.CommitRetrying);
 
-            globalSession.setStatus(GlobalStatus.StopRollbackRetry);
+            globalSession.setStatus(GlobalStatus.StopRollbackOrRollbackRetry);
             globalSessionService.startGlobalRetry(xid);
             Assertions.assertEquals(SessionHolder.findGlobalSession(xid).getStatus(),
                     GlobalStatus.RollbackRetrying);

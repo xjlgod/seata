@@ -506,8 +506,8 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
                 }
             });
             GlobalStatus globalStatus = globalSession.getStatus();
-            GlobalStatus newStatus = GlobalStatus.StopCommitRetry.equals(globalStatus) ? GlobalStatus.CommitRetrying :
-                    GlobalStatus.StopRollbackRetry.equals(globalStatus) ? GlobalStatus.RollbackRetrying : null;
+            GlobalStatus newStatus = GlobalStatus.StopCommitOrCommitRetry.equals(globalStatus) ? GlobalStatus.CommitRetrying :
+                    GlobalStatus.StopRollbackOrRollbackRetry.equals(globalStatus) ? GlobalStatus.RollbackRetrying : null;
             try {
                 if (Objects.nonNull(newStatus) && System.currentTimeMillis() - globalSession.getGmtModified() >= AUTO_RETRY_TIME) {
                     if (LOGGER.isDebugEnabled()) {

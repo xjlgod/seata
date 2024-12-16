@@ -45,8 +45,8 @@ public abstract class AbstractBranchService extends AbstractService implements B
         }
         GlobalStatus status = globalSession.getStatus();
         BranchStatus newStatus = RETRY_STATUS.contains(status) || GlobalStatus.Rollbacking.equals(status) ||
-                GlobalStatus.Committing.equals(status) || GlobalStatus.StopRollbackRetry.equals(status) ||
-                GlobalStatus.StopCommitRetry.equals(status) ? BranchStatus.STOP_RETRY : null;
+                GlobalStatus.Committing.equals(status) || GlobalStatus.StopRollbackOrRollbackRetry.equals(status) ||
+                GlobalStatus.StopCommitOrCommitRetry.equals(status) ? BranchStatus.STOP_RETRY : null;
         if (newStatus == null) {
             throw new IllegalArgumentException("wrong status for global status");
         }
@@ -94,8 +94,8 @@ public abstract class AbstractBranchService extends AbstractService implements B
         GlobalStatus globalStatus = globalSession.getStatus();
         BranchSession branchSession = checkResult.getBranchSession();
         if (FAIL_STATUS.contains(globalStatus) || RETRY_STATUS.contains(globalStatus)
-                || FINISH_STATUS.contains(globalStatus) || GlobalStatus.StopRollbackRetry == globalStatus
-                || GlobalStatus.StopCommitRetry == globalStatus || GlobalStatus.Deleting == globalStatus) {
+                || FINISH_STATUS.contains(globalStatus) || GlobalStatus.StopRollbackOrRollbackRetry == globalStatus
+                || GlobalStatus.StopCommitOrCommitRetry == globalStatus || GlobalStatus.Deleting == globalStatus) {
             try {
                 boolean deleted = doDeleteBranch(globalSession, branchSession);
                 return deleted ? SingleResult.success() :
