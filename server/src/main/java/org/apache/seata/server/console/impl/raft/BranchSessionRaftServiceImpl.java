@@ -16,11 +16,7 @@
  */
 package org.apache.seata.server.console.impl.raft;
 
-import org.apache.seata.common.result.PageResult;
-import org.apache.seata.server.console.impl.AbstractBranchService;
 import org.apache.seata.server.console.impl.file.BranchSessionFileServiceImpl;
-import org.apache.seata.server.console.service.BranchSessionService;
-import org.apache.seata.server.console.vo.BranchSessionVO;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
