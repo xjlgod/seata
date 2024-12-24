@@ -16,6 +16,8 @@
  */
 package io.seata.tm.api;
 
+import java.util.concurrent.TimeUnit;
+
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
@@ -26,7 +28,6 @@ import org.apache.seata.core.logger.StackTraceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * The type Default failure handler.

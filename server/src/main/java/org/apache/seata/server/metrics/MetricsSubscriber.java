@@ -36,7 +36,7 @@ import static org.apache.seata.metrics.IdConstants.APP_ID_KEY;
 import static org.apache.seata.metrics.IdConstants.CLIENT_ID_KEY;
 import static org.apache.seata.metrics.IdConstants.GROUP_KEY;
 import static org.apache.seata.metrics.IdConstants.LIMIT_TYPE_KEY;
-import static org.apache.seata.metrics.IdConstants.SERVER_IP_ADDRESS_AND_PORT_KEY;
+import static org.apache.seata.metrics.IdConstants.HOST_AND_PORT;
 import static org.apache.seata.metrics.IdConstants.STATUS_VALUE_AFTER_COMMITTED_KEY;
 import static org.apache.seata.metrics.IdConstants.STATUS_VALUE_AFTER_ROLLBACKED_KEY;
 
@@ -203,7 +203,7 @@ public class MetricsSubscriber {
                 .withTag(LIMIT_TYPE_KEY, event.getLimitType())
                 .withTag(APP_ID_KEY, event.getApplicationId())
                 .withTag(CLIENT_ID_KEY, event.getClientId())
-                .withTag(SERVER_IP_ADDRESS_AND_PORT_KEY, event.getServerIpAddressAndPort())).increase(1);
+                .withTag(HOST_AND_PORT, event.getServerIpAddressAndPort())).increase(1);
     }
 
     @Override

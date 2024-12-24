@@ -85,5 +85,5 @@ public interface IdConstants {
 
     String CLIENT_ID_KEY = "clientId";
 
-    String SERVER_IP_ADDRESS_AND_PORT_KEY = "serverIpAddressAndPort";
+    String HOST_AND_PORT = "hostAndPort";
 }
