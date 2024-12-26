@@ -16,11 +16,12 @@
  */
 package org.apache.seata.server.ratelimiter;
 
+import org.apache.seata.core.protocol.transaction.AbstractTransactionRequestToTC;
 import org.apache.seata.core.protocol.transaction.GlobalBeginRequest;
 import org.apache.seata.core.rpc.RpcContext;
-import org.apache.seata.server.ratelimit.RateLimiter;
-import org.apache.seata.server.ratelimit.RateLimiterHandler;
-import org.apache.seata.server.ratelimit.TokenBucketLimiter;
+import org.apache.seata.server.limit.ratelimit.RateLimiter;
+import org.apache.seata.server.limit.ratelimit.RateLimiterHandler;
+import org.apache.seata.server.limit.ratelimit.TokenBucketLimiter;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ public class RateLimiterHandlerTest {
         rateLimiterHandler = new RateLimiterHandler(rateLimiter);
         GlobalBeginRequest request = new GlobalBeginRequest();
         RpcContext rpcContext = new RpcContext();
-        Assertions.assertNull(rateLimiterHandler.handle(request, rpcContext));
+        Assertions.assertThrowsExactly(NullPointerException.class, () -> rateLimiterHandler.handle(request, rpcContext));
     }
 
     @Test
@@ -58,8 +59,7 @@ public class RateLimiterHandlerTest {
         rateLimiterHandler = new RateLimiterHandler(rateLimiter);
         GlobalBeginRequest request = new GlobalBeginRequest();
         RpcContext rpcContext = new RpcContext();
-        rateLimiterHandler.handle(request, rpcContext);
-        Assertions.assertNotNull(rateLimiterHandler.handle(request, rpcContext));
+        Assertions.assertThrowsExactly(NullPointerException.class, () -> rateLimiterHandler.handle(request, rpcContext));
     }
 
 }

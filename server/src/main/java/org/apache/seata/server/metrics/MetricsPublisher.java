@@ -21,7 +21,7 @@ import org.apache.seata.core.event.GlobalTransactionEvent;
 import org.apache.seata.core.event.RateLimitEvent;
 import org.apache.seata.core.model.GlobalStatus;
 import org.apache.seata.server.event.EventBusManager;
-import org.apache.seata.server.ratelimit.RateLimitInfo;
+import org.apache.seata.server.limit.ratelimit.RateLimitInfo;
 import org.apache.seata.server.session.GlobalSession;
 
 /**

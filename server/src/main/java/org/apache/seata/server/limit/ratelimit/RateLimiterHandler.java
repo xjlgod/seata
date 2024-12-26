@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.seata.server.ratelimit;
+package org.apache.seata.server.limit.ratelimit;
 
 import org.apache.seata.common.XID;
 import org.apache.seata.common.loader.EnhancedServiceLoader;
@@ -25,18 +25,19 @@ import org.apache.seata.config.ConfigurationChangeEvent;
 import org.apache.seata.common.ConfigurationKeys;
 import org.apache.seata.config.ConfigurationFactory;
 import org.apache.seata.core.exception.TransactionExceptionCode;
-import org.apache.seata.core.protocol.AbstractMessage;
-import org.apache.seata.core.protocol.AbstractResultMessage;
+import org.apache.seata.core.protocol.MessageType;
 import org.apache.seata.core.protocol.ResultCode;
-import org.apache.seata.core.protocol.transaction.GlobalBeginRequest;
+import org.apache.seata.core.protocol.transaction.AbstractTransactionRequestToTC;
+import org.apache.seata.core.protocol.transaction.AbstractTransactionResponse;
 import org.apache.seata.core.protocol.transaction.GlobalBeginResponse;
 import org.apache.seata.core.rpc.RpcContext;
+import org.apache.seata.server.limit.TransactionRequestLimitHandler;
 import org.apache.seata.server.metrics.MetricsPublisher;
 
 /**
  * RateLimiterHandler
  */
-public class RateLimiterHandler implements CachedConfigurationChangeListener {
+public class RateLimiterHandler extends TransactionRequestLimitHandler implements CachedConfigurationChangeListener {
     /**
      * The instance of RateLimiterHandler
      */
@@ -68,6 +69,27 @@ public class RateLimiterHandler implements CachedConfigurationChangeListener {
         config.addConfigListener(ConfigurationKeys.RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM, this);
     }
 
+    @Override
+    public AbstractTransactionResponse handle(AbstractTransactionRequestToTC originRequest, RpcContext context) {
+        if (!rateLimiter.isEnable()) {
+            return next(originRequest, context);
+        }
+
+        if (MessageType.TYPE_GLOBAL_BEGIN == originRequest.getTypeCode()) {
+            if (!rateLimiter.canPass()) {
+                GlobalBeginResponse response = new GlobalBeginResponse();
+                response.setTransactionExceptionCode(TransactionExceptionCode.BeginFailed);
+                response.setResultCode(ResultCode.Failed);
+                RateLimitInfo rateLimitInfo = RateLimitInfo.generateRateLimitInfo(context.getApplicationId(),
+                        RateLimitInfo.GLOBAL_BEGIN_FAILED, context.getClientId(), XID.getIpAddressAndPort());
+                MetricsPublisher.postRateLimitEvent(rateLimitInfo);
+                response.setMsg(String.format("TransactionException[rate limit exception, rate limit info: %s]", rateLimitInfo));
+                return response;
+            }
+        }
+        return next(originRequest, context);
+    }
+
     public static RateLimiterHandler getInstance() {
         if (instance == null) {
             synchronized (RateLimiterHandler.class) {
@@ -96,25 +118,5 @@ public class RateLimiterHandler implements CachedConfigurationChangeListener {
             config.setBucketTokenInitialNum(NumberUtils.toInt(newValue, config.getBucketTokenInitialNum()));
         }
         rateLimiter.reInit(config);
-    }
-
-    public AbstractResultMessage handle(AbstractMessage request, RpcContext rpcContext) {
-        if (!rateLimiter.isEnable()) {
-            return null;
-        }
-
-        if (request instanceof GlobalBeginRequest) {
-            if (!rateLimiter.canPass()) {
-                GlobalBeginResponse response = new GlobalBeginResponse();
-                response.setTransactionExceptionCode(TransactionExceptionCode.BeginFailed);
-                response.setResultCode(ResultCode.Failed);
-                RateLimitInfo rateLimitInfo = RateLimitInfo.generateRateLimitInfo(rpcContext.getApplicationId(),
-                        RateLimitInfo.GLOBAL_BEGIN_FAILED, rpcContext.getClientId(), XID.getIpAddressAndPort());
-                MetricsPublisher.postRateLimitEvent(rateLimitInfo);
-                response.setMsg(String.format("TransactionException[rate limit exception, rate limit info: %s]", rateLimitInfo));
-                return response;
-            }
-        }
-        return null;
     }
 }
