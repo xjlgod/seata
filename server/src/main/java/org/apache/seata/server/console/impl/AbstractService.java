@@ -123,6 +123,7 @@ public abstract class AbstractService {
             LOGGER.debug("Branch delete start, xid:{} branchId:{} branchType:{}",
                     branchSession.getXid(), branchSession.getBranchId(), branchSession.getBranchType());
         }
+        // local transaction failed, not need to do branch del for phase two
         if (branchSession.getStatus() == BranchStatus.PhaseOne_Failed) {
             globalSession.removeBranch(branchSession);
             return true;

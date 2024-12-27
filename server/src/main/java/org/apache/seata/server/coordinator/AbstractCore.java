@@ -267,7 +267,7 @@ public abstract class AbstractCore implements Core {
 
     @Override
     public Boolean doBranchDelete(GlobalSession globalSession, BranchSession branchSession) throws TransactionException {
-        return null;
+        return true;
     }
 
     @Override

@@ -147,6 +147,7 @@ public class DefaultCore implements Core {
             LOGGER.info("Delete branch XAER_NOTA retry timeout, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
             return true;
         }
+        // branch transaction can not roll back, stop retry and delete
         if (response.getBranchStatus() == BranchStatus.PhaseTwo_RollbackFailed_Unretryable) {
             LOGGER.error("Delete branch transaction fail and stop retry, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
             return true;

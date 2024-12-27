@@ -44,6 +44,7 @@ public class RMHandlerXA extends AbstractRMHandler {
         }
         BranchDeleteResponse branchDeleteResponse = new BranchDeleteResponse();
         try {
+            // use rollback to make date correct in xa mode
             BranchStatus branchStatus = getResourceManager().branchRollback(request.getBranchType(), request.getXid(),
                     request.getBranchId(), request.getResourceId(), "");
             ResultCode code = branchStatus == BranchStatus.PhaseTwo_Rollbacked ? ResultCode.Success : ResultCode.Failed;

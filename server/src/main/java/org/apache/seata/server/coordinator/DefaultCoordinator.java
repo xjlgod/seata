@@ -481,6 +481,9 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
         });
     }
 
+    /**
+     * find session stop retry to retry again
+     */
     protected void handleAutoRestart() {
         Collection<GlobalSession> allSessions = SessionHolder.getRootSessionManager().allSessions();
         if (CollectionUtils.isEmpty(allSessions)) {

@@ -82,6 +82,7 @@ public class RMHandlerAT extends AbstractRMHandler {
         BranchDeleteResponse branchDeleteResponse = new BranchDeleteResponse();
         DataSourceManager dataSourceManager = (DataSourceManager) getResourceManager();
         try {
+            // use commit to delete undo log
             dataSourceManager.branchCommit(BranchType.AT, request.getXid(), request.getBranchId(),
                     request.getResourceId(), "");
             branchDeleteResponse.setResultCode(ResultCode.Success);
