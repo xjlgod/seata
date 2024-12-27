@@ -31,17 +31,17 @@ import org.apache.seata.core.protocol.transaction.AbstractTransactionRequestToTC
 import org.apache.seata.core.protocol.transaction.AbstractTransactionResponse;
 import org.apache.seata.core.protocol.transaction.GlobalBeginResponse;
 import org.apache.seata.core.rpc.RpcContext;
-import org.apache.seata.server.limit.TransactionRequestLimitHandler;
+import org.apache.seata.server.limit.AbstractTransactionRequestHandler;
 import org.apache.seata.server.metrics.MetricsPublisher;
 
 /**
  * RateLimiterHandler
  */
-public class RateLimiterHandler extends TransactionRequestLimitHandler implements CachedConfigurationChangeListener {
+public class RateLimiterHandlerAbstract extends AbstractTransactionRequestHandler implements CachedConfigurationChangeListener {
     /**
      * The instance of RateLimiterHandler
      */
-    private static volatile RateLimiterHandler instance;
+    private static volatile RateLimiterHandlerAbstract instance;
 
     /**
      * The instance of RateLimiter
@@ -53,12 +53,12 @@ public class RateLimiterHandler extends TransactionRequestLimitHandler implement
      */
     private final RateLimiterHandlerConfig config;
 
-    public RateLimiterHandler(RateLimiter rateLimiter) {
+    public RateLimiterHandlerAbstract(RateLimiter rateLimiter) {
         this.rateLimiter = rateLimiter;
         this.config = new RateLimiterHandlerConfig();
     }
 
-    private RateLimiterHandler() {
+    private RateLimiterHandlerAbstract() {
         rateLimiter = EnhancedServiceLoader.load(RateLimiter.class);
         config = rateLimiter.obtainConfig();
 
@@ -90,11 +90,11 @@ public class RateLimiterHandler extends TransactionRequestLimitHandler implement
         return next(originRequest, context);
     }
 
-    public static RateLimiterHandler getInstance() {
+    public static RateLimiterHandlerAbstract getInstance() {
         if (instance == null) {
-            synchronized (RateLimiterHandler.class) {
+            synchronized (RateLimiterHandlerAbstract.class) {
                 if (instance == null) {
-                    instance = new RateLimiterHandler();
+                    instance = new RateLimiterHandlerAbstract();
                 }
             }
         }

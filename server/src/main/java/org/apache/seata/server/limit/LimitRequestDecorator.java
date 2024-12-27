@@ -19,7 +19,7 @@ package org.apache.seata.server.limit;
 import org.apache.seata.core.protocol.transaction.AbstractTransactionRequestToTC;
 import org.apache.seata.core.protocol.transaction.AbstractTransactionResponse;
 import org.apache.seata.core.rpc.RpcContext;
-import org.apache.seata.server.limit.ratelimit.RateLimiterHandler;
+import org.apache.seata.server.limit.ratelimit.RateLimiterHandlerAbstract;
 
 /**
  * LimitRequestDecorator decorate AbstractTransactionRequestToTC to use limiter
@@ -28,13 +28,13 @@ public class LimitRequestDecorator extends AbstractTransactionRequestToTC {
 
     private AbstractTransactionRequestToTC originalRequest;
 
-    private TransactionRequestLimitHandler requestLimitHandler;
+    private AbstractTransactionRequestHandler requestLimitHandler;
 
     public LimitRequestDecorator(AbstractTransactionRequestToTC originalRequest) {
         this.originalRequest = originalRequest;
 
         // create server rate limter
-        RateLimiterHandler rateLimiterHandler = RateLimiterHandler.getInstance();
+        RateLimiterHandlerAbstract rateLimiterHandler = RateLimiterHandlerAbstract.getInstance();
         rateLimiterHandler.setTransactionRequestLimitHandler(null);
         requestLimitHandler = rateLimiterHandler;
     }

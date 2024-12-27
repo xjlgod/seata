@@ -23,14 +23,14 @@ import org.apache.seata.core.rpc.RpcContext;
 /**
  * TransactionRequestLimitHandler
  */
-public abstract class TransactionRequestLimitHandler {
+public abstract class AbstractTransactionRequestHandler {
 
     /**
      * limit handler
      */
-    protected TransactionRequestLimitHandler transactionRequestLimitHandler;
+    protected AbstractTransactionRequestHandler abstractTransactionRequestHandler;
 
-    public TransactionRequestLimitHandler() {
+    public AbstractTransactionRequestHandler() {
     }
 
     /**
@@ -39,15 +39,15 @@ public abstract class TransactionRequestLimitHandler {
      * @return
      */
     protected AbstractTransactionResponse next(AbstractTransactionRequestToTC originRequest, RpcContext context) {
-        if (transactionRequestLimitHandler != null) {
-            return transactionRequestLimitHandler.next(originRequest, context);
+        if (abstractTransactionRequestHandler != null) {
+            return abstractTransactionRequestHandler.next(originRequest, context);
         }
         return originRequest.handle(context);
     }
 
     public abstract AbstractTransactionResponse handle(AbstractTransactionRequestToTC originRequest, RpcContext context);
 
-    public void setTransactionRequestLimitHandler(TransactionRequestLimitHandler transactionRequestLimitHandler) {
-        this.transactionRequestLimitHandler = transactionRequestLimitHandler;
+    public void setTransactionRequestLimitHandler(AbstractTransactionRequestHandler abstractTransactionRequestHandler) {
+        this.abstractTransactionRequestHandler = abstractTransactionRequestHandler;
     }
 }
