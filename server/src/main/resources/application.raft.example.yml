@@ -133,9 +133,9 @@ seata:
       enable-branch-async-remove: false #enable to asynchronous remove branchSession
     ratelimit:
       enable: false
-      bucketTokenSecondNum: 1
-      bucketTokenMaxNum: 1
-      bucketTokenInitialNum: 1
+      bucketTokenNumPerSecond: 999999
+      bucketTokenMaxNum: 999999
+      bucketTokenInitialNum: 999999
   store:
     # support: file
     mode: raft

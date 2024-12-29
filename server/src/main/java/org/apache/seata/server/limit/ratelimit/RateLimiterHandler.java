@@ -37,11 +37,11 @@ import org.apache.seata.server.metrics.MetricsPublisher;
 /**
  * RateLimiterHandler
  */
-public class RateLimiterHandlerAbstract extends AbstractTransactionRequestHandler implements CachedConfigurationChangeListener {
+public class RateLimiterHandler extends AbstractTransactionRequestHandler implements CachedConfigurationChangeListener {
     /**
      * The instance of RateLimiterHandler
      */
-    private static volatile RateLimiterHandlerAbstract instance;
+    private static volatile RateLimiterHandler instance;
 
     /**
      * The instance of RateLimiter
@@ -53,12 +53,12 @@ public class RateLimiterHandlerAbstract extends AbstractTransactionRequestHandle
      */
     private final RateLimiterHandlerConfig config;
 
-    public RateLimiterHandlerAbstract(RateLimiter rateLimiter) {
+    public RateLimiterHandler(RateLimiter rateLimiter) {
         this.rateLimiter = rateLimiter;
         this.config = new RateLimiterHandlerConfig();
     }
 
-    private RateLimiterHandlerAbstract() {
+    private RateLimiterHandler() {
         rateLimiter = EnhancedServiceLoader.load(RateLimiter.class);
         config = rateLimiter.obtainConfig();
 
@@ -90,11 +90,11 @@ public class RateLimiterHandlerAbstract extends AbstractTransactionRequestHandle
         return next(originRequest, context);
     }
 
-    public static RateLimiterHandlerAbstract getInstance() {
+    public static RateLimiterHandler getInstance() {
         if (instance == null) {
-            synchronized (RateLimiterHandlerAbstract.class) {
+            synchronized (RateLimiterHandler.class) {
                 if (instance == null) {
-                    instance = new RateLimiterHandlerAbstract();
+                    instance = new RateLimiterHandler();
                 }
             }
         }
