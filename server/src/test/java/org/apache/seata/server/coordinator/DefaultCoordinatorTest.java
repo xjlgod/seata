@@ -169,13 +169,11 @@ public class DefaultCoordinatorTest {
         Long branchId = core.branchRegister(BranchType.AT, "abcd", clientId, xid, applicationData, lockKeys_2);
 
         Assertions.assertNotNull(branchId);
-        GlobalSession globalSession = SessionHolder.findGlobalSession(xid);
         Thread.sleep(100);
         defaultCoordinator.timeoutCheck();
-        TimeUnit.MILLISECONDS.sleep(globalSession.getGmtModified() - globalSession.getBeginTime());
         defaultCoordinator.handleRetryRollbacking();
 
-        globalSession = SessionHolder.findGlobalSession(xid);
+        GlobalSession globalSession = SessionHolder.findGlobalSession(xid);
         Assertions.assertNull(globalSession);
 
     }
@@ -194,7 +192,6 @@ public class DefaultCoordinatorTest {
         ReflectionUtil.modifyStaticFinalField(defaultCoordinator.getClass(), "MAX_ROLLBACK_RETRY_TIMEOUT", 10L);
         ReflectionUtil.modifyStaticFinalField(defaultCoordinator.getClass(), "ROLLBACK_RETRY_TIMEOUT_UNLOCK_ENABLE", false);
         TimeUnit.MILLISECONDS.sleep(100);
-        TimeUnit.MILLISECONDS.sleep(globalSession.getGmtModified() - globalSession.getBeginTime());
         globalSession.queueToRetryRollback();
         defaultCoordinator.handleRetryRollbacking();
         int lockSize = globalSession.getBranchSessions().get(0).getLockHolder().size();
@@ -224,7 +221,6 @@ public class DefaultCoordinatorTest {
         TimeUnit.MILLISECONDS.sleep(100);
 
         globalSession.queueToRetryRollback();
-        TimeUnit.MILLISECONDS.sleep(globalSession.getGmtModified() - globalSession.getBeginTime());
         defaultCoordinator.handleRetryRollbacking();
 
         int lockSize = globalSession.getBranchSessions().get(0).getLockHolder().size();

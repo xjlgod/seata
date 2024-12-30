@@ -606,14 +606,6 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
         this.active = active;
     }
 
-    public long getGmtModified() {
-        return gmtModified;
-    }
-
-    public void setGmtModified(long gmtModified) {
-        this.gmtModified = gmtModified;
-    }
-
     @Override
     public byte[] encode() {
         byte[] byApplicationIdBytes = applicationId != null ? applicationId.getBytes() : null;
