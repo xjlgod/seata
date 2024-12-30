@@ -1135,4 +1135,15 @@ public interface ConfigurationKeys {
      * The constant RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM.
      */
     String RATE_LIMIT_BUCKET_TOKEN_INITIAL_NUM = RATE_LIMIT_PREFIX + ".bucketTokenInitialNum";
+
+    /**
+     * The constant SERVER_REGISTRY_METADATA_PREFIX
+     */
+    String SERVER_REGISTRY_METADATA_PREFIX = SERVER_PREFIX + FILE_ROOT_REGISTRY + ".metadata";
+
+    /**
+     * The constant SERVER_REGISTRY_METADATA_EXTERNAL
+     */
+    String SERVER_REGISTRY_METADATA_EXTERNAL = SERVER_REGISTRY_METADATA_PREFIX + ".external";
+
 }
