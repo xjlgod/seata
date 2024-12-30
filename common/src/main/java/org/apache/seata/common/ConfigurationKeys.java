@@ -300,16 +300,6 @@ public interface ConfigurationKeys {
     String DISTRIBUTED_LOCK_DB_TABLE = STORE_DB_PREFIX + "distributedLockTable";
 
     /**
-     * the constant AUTO_RESTART_TIME
-     */
-    String AUTO_RESTART_TIME = SERVER_PREFIX + "autoRestartTime";
-
-    /**
-     * the constant AUTO_RESTART_PERIOD
-     */
-    String AUTO_RESTART_PERIOD = SERVER_PREFIX + "autoRestartPeriod";
-
-    /**
      * The constant STORE_DB_DATASOURCE_TYPE.
      */
     String STORE_DB_DATASOURCE_TYPE = STORE_DB_PREFIX + "datasource";

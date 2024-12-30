@@ -79,7 +79,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import static org.apache.seata.common.Constants.ASYNC_COMMITTING;
-import static org.apache.seata.common.Constants.AUTO_RESTART_SESSION;
 import static org.apache.seata.common.Constants.COMMITTING;
 import static org.apache.seata.common.Constants.RETRY_COMMITTING;
 import static org.apache.seata.common.Constants.RETRY_ROLLBACKING;
@@ -139,17 +138,6 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
             ConfigurationKeys.TRANSACTION_UNDO_LOG_DELETE_PERIOD, DEFAULT_UNDO_LOG_DELETE_PERIOD);
 
     /**
-     * The constant AUTO_RESTART_TIME
-     */
-    protected static final long AUTO_RETRY_TIME = CONFIG.getLong(ConfigurationKeys.AUTO_RESTART_TIME,
-            DefaultValues.DEFAULT_AUTO_RESTART_TIME);
-
-    /**
-     * The constant AUTO_RESTART_PERIOD
-     */
-    protected static final long AUTO_RETRY_PERIOD = CONFIG.getLong(ConfigurationKeys.AUTO_RESTART_PERIOD,
-            DefaultValues.DEFAULT_AUTO_RESTART_PERIOD);
-    /**
      * The Transaction undo log delay delete period
      */
     protected static final long UNDO_LOG_DELAY_DELETE_PERIOD = 3 * 60 * 1000;
@@ -198,9 +186,6 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
 
     private final ScheduledThreadPoolExecutor syncProcessing =
         new ScheduledThreadPoolExecutor(1, new NamedThreadFactory(SYNC_PROCESSING, 1));
-
-    private final ScheduledThreadPoolExecutor autoRestartSession =
-            new ScheduledThreadPoolExecutor(1, new NamedThreadFactory(AUTO_RESTART_SESSION, 1));
 
     private final GlobalStatus[] retryRollbackingStatuses = new GlobalStatus[] {
         GlobalStatus.TimeoutRollbacking,
@@ -483,49 +468,6 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
     }
 
     /**
-     * find session stop retry to retry again
-     */
-    protected void handleAutoRestart() {
-        Collection<GlobalSession> allSessions = SessionHolder.getRootSessionManager().allSessions();
-        if (CollectionUtils.isEmpty(allSessions)) {
-            return;
-        }
-        SessionHelper.forEach(allSessions, globalSession -> {
-            String xid = globalSession.getXid();
-            List<BranchSession> branchSessions = globalSession.getBranchSessions();
-            branchSessions.forEach(branchSession -> {
-                if (BranchStatus.STOP_RETRY.equals(branchSession.getStatus())
-                        && System.currentTimeMillis() - branchSession.getGmtModified() >= AUTO_RETRY_TIME) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Auto restart the branch session to retry,xid: {}, branchId: {}", xid, branchSession.getBranchId());
-                    }
-                    BranchStatus newStatus = BranchStatus.Registered;
-                    branchSession.setStatus(newStatus);
-                    try {
-                        globalSession.changeBranchStatus(branchSession, newStatus);
-                    } catch (Exception e) {
-                        LOGGER.error("Change branch session status fail, xid: {}, branchId:{}",
-                                globalSession.getXid(), branchSession.getBranchId(), e);
-                    }
-                }
-            });
-            GlobalStatus globalStatus = globalSession.getStatus();
-            GlobalStatus newStatus = GlobalStatus.StopCommitOrCommitRetry.equals(globalStatus) ? GlobalStatus.CommitRetrying :
-                    GlobalStatus.StopRollbackOrRollbackRetry.equals(globalStatus) ? GlobalStatus.RollbackRetrying : null;
-            try {
-                if (Objects.nonNull(newStatus) && System.currentTimeMillis() - globalSession.getGmtModified() >= AUTO_RETRY_TIME) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Auto restart the global session to retry,xid: {}", globalSession.getXid());
-                    }
-                    globalSession.changeGlobalStatus(newStatus);
-                }
-            } catch (Exception e) {
-                LOGGER.error("Auto restart global session retry fail, xid:{}", globalSession.getXid(), e);
-            }
-        });
-    }
-
-    /**
      * Undo log delete.
      */
     protected void undoLogDelete() {
@@ -689,8 +631,6 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
             () -> SessionHolder.distributedLockAndExecute(UNDOLOG_DELETE, this::undoLogDelete),
             UNDO_LOG_DELAY_DELETE_PERIOD, UNDO_LOG_DELETE_PERIOD, TimeUnit.MILLISECONDS);
 
-        autoRestartSession.scheduleAtFixedRate(this::handleAutoRestart, 0, AUTO_RETRY_PERIOD, TimeUnit.MILLISECONDS);
-
         rollbackingSchedule(0);
 
         committingSchedule(0);
@@ -723,7 +663,6 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
         asyncCommitting.shutdown();
         timeoutCheck.shutdown();
         undoLogDelete.shutdown();
-        autoRestartSession.shutdown();
         if (branchRemoveExecutor != null) {
             branchRemoveExecutor.shutdown();
         }
@@ -733,7 +672,6 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
             asyncCommitting.awaitTermination(TIMED_TASK_SHUTDOWN_MAX_WAIT_MILLS, TimeUnit.MILLISECONDS);
             timeoutCheck.awaitTermination(TIMED_TASK_SHUTDOWN_MAX_WAIT_MILLS, TimeUnit.MILLISECONDS);
             undoLogDelete.awaitTermination(TIMED_TASK_SHUTDOWN_MAX_WAIT_MILLS, TimeUnit.MILLISECONDS);
-            autoRestartSession.awaitTermination(TIMED_TASK_SHUTDOWN_MAX_WAIT_MILLS, TimeUnit.MILLISECONDS);
             if (branchRemoveExecutor != null) {
                 branchRemoveExecutor.awaitTermination(TIMED_TASK_SHUTDOWN_MAX_WAIT_MILLS, TimeUnit.MILLISECONDS);
             }
