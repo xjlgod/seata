@@ -20,12 +20,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 
 import org.apache.seata.common.result.SingleResult;
 import org.apache.seata.common.util.CollectionUtils;
-import org.apache.seata.common.util.StringUtils;
+import org.apache.seata.core.exception.TransactionException;
+import org.apache.seata.server.console.exception.ConsoleException;
 import org.apache.seata.server.console.impl.AbstractLockService;
+import org.apache.seata.server.session.BranchSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -85,35 +86,14 @@ public class GlobalLockRedisServiceImpl extends AbstractLockService implements G
             LOGGER.debug("start to delete global lock,xid:{} branchId:{} row key:{} ",
                     param.getXid(), param.getBranchId(), rowKey);
         }
-        try (Jedis jedis = JedisPooledFactory.getJedisInstance()) {
-            // del the row key
-            jedis.del(rowKey);
-            String xidLockKey = buildXidLockKey(param.getXid());
-            String rowKeys = jedis.hget(xidLockKey, param.getBranchId());
-            if (StringUtils.isNotBlank(rowKeys)) {
-                // Check whether other locks exist. If so, update it. If not, delete it
-                if (rowKeys.contains(ROW_LOCK_KEY_SPLIT_CHAR)) {
-                    String[] rowKeyArray = rowKeys.split(ROW_LOCK_KEY_SPLIT_CHAR);
-                    StringJoiner lockKeysString = new StringJoiner(ROW_LOCK_KEY_SPLIT_CHAR);
-                    for (String rk : rowKeyArray) {
-                        if (rk.equalsIgnoreCase(rowKey)) {
-                            continue;
-                        }
-                        lockKeysString.add(rk);
-                    }
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("update global lock key from {} to :{} ",rowKeys, lockKeysString);
-                    }
-                    // update the new lock key
-                    jedis.hset(xidLockKey, param.getBranchId(), lockKeysString.toString());
-                } else {
-                    // no other branch session
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("start to delete global lock key:{} ", xidLockKey);
-                    }
-                    jedis.del(xidLockKey);
-                }
-            }
+        BranchSession branchSession = new BranchSession();
+        branchSession.setXid(param.getXid());
+        branchSession.setBranchId(Long.parseLong(param.getBranchId()));
+        try {
+            lockManager.releaseLock(branchSession);
+        } catch (TransactionException e) {
+            throw new ConsoleException(e, String.format("delete global lock," +
+                    "xid:%s ,branchId:%s ,row key:%s failed", param.getXid(), param.getBranchId(), rowKey));
         }
         return SingleResult.success();
     }
