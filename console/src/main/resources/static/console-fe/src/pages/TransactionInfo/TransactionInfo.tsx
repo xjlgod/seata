@@ -408,9 +408,12 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
       sendGlobalSessionTitle,
       changeGlobalSessionTitle,
     } = locale;
-    let width = getCurrentLanguage() === enUsKey ? '450px' : '350px'
+    let width = getCurrentLanguage() === enUsKey ? '450px' : '420px'
+    let height = this.state.globalSessionParam.withBranch ? '120px' : '80px';
     return (
-      <Actions style={{width: width}}>
+      <Actions style={{ width: width,
+        height: height,
+      }} threshold = {7} wrap = {true} >
         {/* {when withBranch false, hide 'View branch session' button} */}
         {this.state.globalSessionParam.withBranch ? (
           <LinkButton
@@ -486,7 +489,7 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
           >
             {startGlobalSessionTitle}
           </Button>
-        ) : <Button onClick={() => {
+        ) : (<Button onClick={() => {
           Dialog.confirm({
             title: 'Confirm',
             content: 'Are you sure you want to stop stop global transactions',
@@ -502,7 +505,7 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
         }}
         >
           {stopGlobalSessionTitle}
-        </Button>
+        </Button>)
         }
 
         <Button
@@ -554,9 +557,12 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
       stopBranchSessionTitle,
       startBranchSessionTitle,
     } = locale;
-    let width = getCurrentLanguage() === enUsKey ? '450px' : '350px'
+    let width = getCurrentLanguage() === enUsKey ? '500px' : '450px'
+    let height = '40px';
     return (
-      <Actions style={{width: width}}>
+      <Actions style={{ width: width,
+        height: height,
+      }} threshold = {7} wrap = {true} >
         <LinkButton
           onClick={() => {
             history.push({
