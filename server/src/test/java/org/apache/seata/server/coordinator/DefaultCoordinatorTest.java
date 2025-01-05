@@ -37,7 +37,6 @@ import org.apache.seata.core.exception.TransactionException;
 import org.apache.seata.core.model.BranchStatus;
 import org.apache.seata.core.model.BranchType;
 import org.apache.seata.core.model.GlobalStatus;
-import org.apache.seata.core.protocol.ResultCode;
 import org.apache.seata.core.protocol.RpcMessage;
 import org.apache.seata.core.protocol.transaction.BranchCommitRequest;
 import org.apache.seata.core.protocol.transaction.BranchCommitResponse;
@@ -292,11 +291,6 @@ public class DefaultCoordinatorTest {
                 final BranchRollbackResponse branchRollbackResponse = new BranchRollbackResponse();
                 branchRollbackResponse.setBranchStatus(BranchStatus.PhaseTwo_Rollbacked);
                 return branchRollbackResponse;
-            } else if (message instanceof BranchDeleteRequest) {
-                final BranchDeleteResponse branchDeleteResponse = new BranchDeleteResponse();
-                branchDeleteResponse.setResultCode(ResultCode.Success);
-                branchDeleteResponse.setBranchStatus(BranchStatus.PhaseTwo_RollbackFailed_Unretryable);
-                return branchDeleteResponse;
             } else {
                 return null;
             }
