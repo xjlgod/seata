@@ -67,11 +67,4 @@ public class DefaultCommonFenceHandler implements FenceHandler {
         check();
         return fenceHandler.deleteFenceByDate(datetime);
     }
-
-
-    @Override
-    public boolean deleteFenceByXidAndBranchId(String xid, Long branchId) {
-        check();
-        return fenceHandler.deleteFenceByXidAndBranchId(xid, branchId);
-    }
 }

@@ -41,8 +41,6 @@ import org.apache.seata.core.protocol.ResultCode;
 import org.apache.seata.core.protocol.RpcMessage;
 import org.apache.seata.core.protocol.transaction.BranchCommitRequest;
 import org.apache.seata.core.protocol.transaction.BranchCommitResponse;
-import org.apache.seata.core.protocol.transaction.BranchDeleteRequest;
-import org.apache.seata.core.protocol.transaction.BranchDeleteResponse;
 import org.apache.seata.core.protocol.transaction.BranchRollbackRequest;
 import org.apache.seata.core.protocol.transaction.BranchRollbackResponse;
 import org.apache.seata.core.rpc.RemotingServer;
@@ -103,7 +101,7 @@ public class DefaultCoordinatorTest {
         RemotingServer remotingServer = new MockServerMessageSender();
         defaultCoordinator = DefaultCoordinator.getInstance(remotingServer);
         defaultCoordinator.setRemotingServer(remotingServer);
-        core = new DefaultCore(remotingServer);
+        core = DefaultCore.getInstance(remotingServer);;
     }
 
     @BeforeEach

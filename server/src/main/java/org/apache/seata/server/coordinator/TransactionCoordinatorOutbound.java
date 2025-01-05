@@ -18,7 +18,6 @@ package org.apache.seata.server.coordinator;
 
 import org.apache.seata.core.exception.TransactionException;
 import org.apache.seata.core.model.BranchStatus;
-import org.apache.seata.core.protocol.transaction.BranchDeleteResponse;
 import org.apache.seata.server.session.BranchSession;
 import org.apache.seata.server.session.GlobalSession;
 
@@ -56,9 +55,9 @@ public interface TransactionCoordinatorOutbound {
      *
      * @param globalSession the global session
      * @param branchSession the branch session
-     * @return delete success or failed
+     * @return  Status of the branch after deleting.
      * @throws TransactionException Any exception that fails this will be wrapped with TransactionException and thrown
      *                              out.
      */
-    BranchDeleteResponse branchDelete(GlobalSession globalSession, BranchSession branchSession) throws TransactionException;
+    BranchStatus branchDelete(GlobalSession globalSession, BranchSession branchSession) throws TransactionException;
 }

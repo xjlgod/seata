@@ -97,8 +97,6 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
 
     private String applicationData;
 
-    private long gmtModified;
-
     private final boolean lazyLoadBranch;
 
     private volatile boolean active = true;
@@ -198,14 +196,6 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
      */
     public boolean isTimeout() {
         return (System.currentTimeMillis() - beginTime) > timeout;
-    }
-
-    /**
-     * prevent could not handle committing and rollbacking transaction
-     * @return if true retry commit or roll back
-     */
-    public boolean isDeadSession() {
-        return (System.currentTimeMillis() - gmtModified) > RETRY_DEAD_THRESHOLD;
     }
 
     /**
@@ -663,8 +653,6 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
         }
         byteBuffer.putLong(beginTime);
         byteBuffer.put((byte)status.getCode());
-        gmtModified = System.currentTimeMillis();
-        byteBuffer.putLong(gmtModified);
         BufferUtils.flip(byteBuffer);
         byte[] result = new byte[byteBuffer.limit()];
         byteBuffer.get(result);
@@ -729,7 +717,6 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
 
         this.beginTime = byteBuffer.getLong();
         this.status = GlobalStatus.get(byteBuffer.get());
-        this.gmtModified = byteBuffer.getLong();
     }
 
     /**
@@ -793,7 +780,7 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
     }
 
     public void queueToRetryCommit() throws TransactionException {
-        if (this.status == GlobalStatus.StopCommitOrCommitRetry || this.status == GlobalStatus.StopRollbackOrRollbackRetry) {
+        if (this.status == GlobalStatus.StopCommitOrCommitRetry) {
             return;
         }
         changeGlobalStatus(GlobalStatus.CommitRetrying);
@@ -801,7 +788,7 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
 
     public void queueToRetryRollback() throws TransactionException {
         GlobalStatus currentStatus = this.getStatus();
-        if (currentStatus == GlobalStatus.StopCommitOrCommitRetry || currentStatus == GlobalStatus.StopRollbackOrRollbackRetry) {
+        if (currentStatus == GlobalStatus.StopRollbackOrRollbackRetry) {
             return;
         }
         GlobalStatus newStatus;

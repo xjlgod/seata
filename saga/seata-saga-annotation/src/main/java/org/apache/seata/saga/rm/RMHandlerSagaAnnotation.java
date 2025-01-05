@@ -16,11 +16,8 @@
  */
 package org.apache.seata.saga.rm;
 
-import org.apache.seata.common.exception.ShouldNeverHappenException;
 import org.apache.seata.core.model.BranchType;
 import org.apache.seata.core.model.ResourceManager;
-import org.apache.seata.core.protocol.transaction.BranchDeleteRequest;
-import org.apache.seata.core.protocol.transaction.BranchDeleteResponse;
 import org.apache.seata.rm.AbstractRMHandler;
 import org.apache.seata.rm.DefaultResourceManager;
 
@@ -37,10 +34,5 @@ public class RMHandlerSagaAnnotation extends AbstractRMHandler {
     @Override
     public BranchType getBranchType() {
         return BranchType.SAGA_ANNOTATION;
-    }
-
-    @Override
-    public BranchDeleteResponse handle(BranchDeleteRequest request) {
-        throw new ShouldNeverHappenException("saga mode rm handler not support BranchDeleteRequest");
     }
 }

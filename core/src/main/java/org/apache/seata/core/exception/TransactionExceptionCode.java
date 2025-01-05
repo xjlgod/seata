@@ -140,12 +140,8 @@ public enum TransactionExceptionCode {
     /**
      * Broken transaction exception code.
      */
-    Broken,
+    Broken;
 
-    /**
-     * Failed to send branch rollback request transaction exception code.
-     */
-    FailedToSendBranchDeleteRequest;
 
     /**
      * Get transaction exception code.

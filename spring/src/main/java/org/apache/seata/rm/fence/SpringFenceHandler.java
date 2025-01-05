@@ -321,11 +321,6 @@ public class SpringFenceHandler implements FenceHandler {
         });
     }
 
-    @Override
-    public boolean deleteFenceByXidAndBranchId(String xid, Long branchId) {
-        return deleteFence(xid, branchId);
-    }
-
     /**
      * Delete Common Fence By Datetime
      *

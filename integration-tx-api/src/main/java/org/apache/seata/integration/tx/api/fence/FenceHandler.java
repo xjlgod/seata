@@ -32,5 +32,4 @@ public interface FenceHandler {
 
     int deleteFenceByDate(Date datetime);
 
-    boolean deleteFenceByXidAndBranchId(String xid, Long branchId);
 }

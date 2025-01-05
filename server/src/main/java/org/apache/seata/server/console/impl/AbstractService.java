@@ -21,6 +21,7 @@ import org.apache.seata.core.exception.TransactionException;
 import org.apache.seata.core.model.BranchStatus;
 import org.apache.seata.core.model.GlobalStatus;
 import org.apache.seata.server.coordinator.DefaultCoordinator;
+import org.apache.seata.server.coordinator.DefaultCore;
 import org.apache.seata.server.lock.LockManager;
 import org.apache.seata.server.lock.LockerManagerFactory;
 import org.apache.seata.server.session.BranchSession;
@@ -118,7 +119,7 @@ public abstract class AbstractService {
         return new CheckResult(globalSession, branchSession);
     }
 
-    protected boolean doDeleteBranch(GlobalSession globalSession, BranchSession branchSession) throws TimeoutException, TransactionException {
+    protected boolean doDeleteBranch(GlobalSession globalSession, BranchSession branchSession) throws TransactionException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Branch delete start, xid:{} branchId:{} branchType:{}",
                     branchSession.getXid(), branchSession.getBranchId(), branchSession.getBranchType());
@@ -128,7 +129,7 @@ public abstract class AbstractService {
             globalSession.removeBranch(branchSession);
             return true;
         }
-        boolean result = DefaultCoordinator.getInstance().getCore().doBranchDelete(globalSession, branchSession);
+        boolean result = DefaultCore.getInstance().doBranchDelete(globalSession, branchSession);
         if (result) {
             if (branchSession.isAT()) {
                 result = lockManager.releaseLock(branchSession);

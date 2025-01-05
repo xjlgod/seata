@@ -22,12 +22,8 @@ import java.text.ParseException;
 import java.util.Date;
 
 import org.apache.seata.common.util.DateUtil;
-import org.apache.seata.core.model.BranchStatus;
 import org.apache.seata.core.model.BranchType;
 import org.apache.seata.core.model.ResourceManager;
-import org.apache.seata.core.protocol.ResultCode;
-import org.apache.seata.core.protocol.transaction.BranchDeleteRequest;
-import org.apache.seata.core.protocol.transaction.BranchDeleteResponse;
 import org.apache.seata.core.protocol.transaction.UndoLogDeleteRequest;
 import org.apache.seata.rm.datasource.DataSourceManager;
 import org.apache.seata.rm.datasource.DataSourceProxy;
@@ -72,29 +68,6 @@ public class RMHandlerAT extends AbstractRMHandler {
         } catch (Exception e) {
             // should never happen, deleteUndoLog method had catch all Exception
         }
-    }
-
-    @Override
-    public BranchDeleteResponse handle(BranchDeleteRequest request) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Start at delete undo log, xid:{}, branchId:{}.", request.getXid(), request.getBranchId());
-        }
-        BranchDeleteResponse branchDeleteResponse = new BranchDeleteResponse();
-        DataSourceManager dataSourceManager = (DataSourceManager) getResourceManager();
-        try {
-            // use commit to delete undo log
-            dataSourceManager.branchCommit(BranchType.AT, request.getXid(), request.getBranchId(),
-                    request.getResourceId(), "");
-            branchDeleteResponse.setResultCode(ResultCode.Success);
-        } catch (Exception e) {
-            branchDeleteResponse.setResultCode(ResultCode.Failed);
-            LOGGER.error("delete undo log fail, xid:{}, branchId:{}, ",request.getXid(), request.getBranchId(),  e);
-        }
-        branchDeleteResponse.setXid(request.getXid());
-        branchDeleteResponse.setBranchId(request.getBranchId());
-        // this branch status is no importance
-        branchDeleteResponse.setBranchStatus(BranchStatus.Unknown);
-        return branchDeleteResponse;
     }
 
     Connection getConnection(DataSourceProxy dataSourceProxy) {

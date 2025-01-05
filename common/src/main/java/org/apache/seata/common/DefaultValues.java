@@ -501,14 +501,4 @@ public interface DefaultValues {
      * The constant DEFAULT_RAFT_SSL_ENABLED.
      */
     boolean DEFAULT_RAFT_SSL_ENABLED = false;
-
-    /**
-     * The constant DEFAULT_AUTO_RESTART_TIME
-     */
-    long DEFAULT_AUTO_RESTART_TIME = 24 * 60 * 60 * 1000;
-
-    /**
-     * The constant DEFAULT_AUTO_RESTART_PERIOD
-     */
-    long DEFAULT_AUTO_RESTART_PERIOD = 60 * 60 * 1000;
 }

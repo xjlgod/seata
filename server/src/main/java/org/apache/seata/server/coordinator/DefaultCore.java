@@ -32,7 +32,6 @@ import org.apache.seata.core.model.BranchStatus;
 import org.apache.seata.core.model.BranchType;
 import org.apache.seata.core.model.GlobalStatus;
 import org.apache.seata.core.protocol.ResultCode;
-import org.apache.seata.core.protocol.transaction.BranchDeleteResponse;
 import org.apache.seata.core.rpc.RemotingServer;
 import org.apache.seata.server.metrics.MetricsPublisher;
 import org.apache.seata.server.session.BranchSession;
@@ -64,12 +63,14 @@ public class DefaultCore implements Core {
     private static final boolean PARALLEL_HANDLE_BRANCH =
             ConfigurationFactory.getInstance().getBoolean(ENABLE_PARALLEL_HANDLE_BRANCH_KEY, false);
 
+    private static volatile DefaultCore instance;
+
     /**
      * get the Default core.
      *
      * @param remotingServer the remoting server
      */
-    public DefaultCore(RemotingServer remotingServer) {
+    protected DefaultCore(RemotingServer remotingServer) {
         List<AbstractCore> allCore = EnhancedServiceLoader.loadAll(AbstractCore.class,
             new Class[] {RemotingServer.class}, new Object[] {remotingServer});
         if (CollectionUtils.isNotEmpty(allCore)) {
@@ -78,6 +79,25 @@ public class DefaultCore implements Core {
             }
         }
     }
+
+    public static DefaultCore getInstance(RemotingServer remotingServer) {
+        if (null == instance) {
+            synchronized (DefaultCoordinator.class) {
+                if (null == instance) {
+                    instance = new DefaultCore(remotingServer);
+                }
+            }
+        }
+        return instance;
+    }
+
+    public static DefaultCore getInstance() {
+        if (null == instance) {
+            throw new IllegalArgumentException("The instance has not been created.");
+        }
+        return instance;
+    }
+
 
     /**
      * get core
@@ -133,26 +153,58 @@ public class DefaultCore implements Core {
     }
 
     @Override
-    public BranchDeleteResponse branchDelete(GlobalSession globalSession, BranchSession branchSession) throws TransactionException {
+    public BranchStatus branchDelete(GlobalSession globalSession, BranchSession branchSession) throws TransactionException {
         return getCore(branchSession.getBranchType()).branchDelete(globalSession, branchSession);
     }
 
     @Override
     public Boolean doBranchDelete(GlobalSession globalSession, BranchSession branchSession) throws TransactionException {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Start delete branch, xid:{}, branchId:{}, branchType:{}",
+                    globalSession.getXid(), branchSession.getBranchId(), branchSession.getBranchType());
+        }
         if (globalSession.isSaga()) {
             return true;
         }
-        BranchDeleteResponse response = getCore(branchSession.getBranchType()).branchDelete(globalSession, branchSession);
-        if (isXaerNotaTimeout(globalSession, response.getBranchStatus())) {
-            LOGGER.info("Delete branch XAER_NOTA retry timeout, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
-            return true;
+        BranchStatus branchStatus = getCore(branchSession.getBranchType()).branchDelete(globalSession, branchSession);
+        switch (branchSession.getBranchType()) {
+            case AT:
+                // at branch delete use commit to delete
+                if (branchStatus.getCode() == BranchStatus.PhaseTwo_Committed.getCode()) {
+                    LOGGER.info("Delete AT branch failed, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
+                    return true;
+                }
+                break;
+            case TCC:
+                // tcc branch delete use rollback to delete
+                if (branchStatus.getCode() == BranchStatus.PhaseTwo_Rollbacked.getCode()) {
+                    LOGGER.info("Delete TCC branch failed, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
+                    return true;
+                }
+                break;
+            case XA:
+                // xa branch delete use rollback to delete
+                if (branchStatus.getCode() == BranchStatus.PhaseTwo_Rollbacked.getCode()) {
+                    return true;
+                }
+                // XAER_NOTA retry timeout, the resource had been rollback
+                if (isXaerNotaTimeout(globalSession, BranchStatus.get(branchStatus.getCode()))) {
+                    LOGGER.info("Delete branch XAER_NOTA retry timeout, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
+                    return true;
+                }
+                LOGGER.info("Delete XA branch failed, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
+                break;
         }
+
         // branch transaction can not roll back, stop retry and delete
-        if (response.getBranchStatus() == BranchStatus.PhaseTwo_RollbackFailed_Unretryable) {
+        if (branchStatus == BranchStatus.PhaseTwo_RollbackFailed_Unretryable) {
             LOGGER.error("Delete branch transaction fail and stop retry, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
             return true;
         }
-        return ResultCode.Success.equals(response.getResultCode());
+
+        LOGGER.error("Delete branch transaction failed, xid = {} branchId = {} branchType = {}", globalSession.getXid(),
+                branchSession.getBranchId(), branchSession.getBranchType());
+        return false;
     }
 
 
@@ -396,7 +448,7 @@ public class DefaultCore implements Core {
 
         // In db mode, lock and branch data residual problems may occur.
         // Therefore, execution needs to be delayed here and cannot be executed synchronously.
-        if (success && globalSession.getBranchSessions().isEmpty()) {
+        if (success) {
             SessionHelper.endRollbacked(globalSession, retrying);
             LOGGER.info("Rollback global transaction successfully, xid = {}.", globalSession.getXid());
         }

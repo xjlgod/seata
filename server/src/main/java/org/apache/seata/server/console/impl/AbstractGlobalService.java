@@ -20,7 +20,7 @@ import org.apache.seata.common.result.SingleResult;
 import org.apache.seata.core.model.GlobalStatus;
 import org.apache.seata.server.console.exception.ConsoleException;
 import org.apache.seata.server.console.service.GlobalSessionService;
-import org.apache.seata.server.coordinator.DefaultCoordinator;
+import org.apache.seata.server.coordinator.DefaultCore;
 import org.apache.seata.server.session.BranchSession;
 import org.apache.seata.server.session.GlobalSession;
 import org.apache.seata.server.session.SessionHolder;
@@ -99,7 +99,7 @@ public abstract class AbstractGlobalService extends AbstractService implements G
             boolean res;
             if (RETRY_COMMIT_STATUS.contains(globalStatus) || GlobalStatus.Committing.equals(globalStatus)
                     || GlobalStatus.StopCommitOrCommitRetry.equals(globalStatus)) {
-                res = DefaultCoordinator.getInstance().getCore().doGlobalCommit(globalSession, false);
+                res = DefaultCore.getInstance().doGlobalCommit(globalSession, false);
                 if (res && globalSession.hasBranch() && globalSession.hasATBranch()) {
                     globalSession.clean();
                     globalSession.asyncCommit();
@@ -108,7 +108,7 @@ public abstract class AbstractGlobalService extends AbstractService implements G
                 }
             } else if (RETRY_ROLLBACK_STATUS.contains(globalStatus) || GlobalStatus.Rollbacking.equals(globalStatus)
                     || GlobalStatus.StopRollbackOrRollbackRetry.equals(globalStatus)) {
-                res = DefaultCoordinator.getInstance().getCore().doGlobalRollback(globalSession, false);
+                res = DefaultCore.getInstance().doGlobalRollback(globalSession, false);
                 // the record is not deleted
                 if (res && SessionHolder.findGlobalSession(xid) != null) {
                     globalSession.changeGlobalStatus(GlobalStatus.Rollbacked);
