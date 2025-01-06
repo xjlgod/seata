@@ -47,44 +47,6 @@ seata:
   store:
     # support: file 、 db 、 redis 、 raft
     mode: file
-#  store:
-#    # support: file 、 db 、 redis 、 raft
-#    mode: db
-#    db:
-#      datasource: druid
-#      db-type: mysql
-#      driver-class-name: com.mysql.cj.jdbc.Driver
-#      url: jdbc:mysql://127.0.0.1:3306/seata?useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true
-#      user: root
-#      password: 123456
-#      min-conn: 10
-#      max-conn: 100
-#      global-table: global_table
-#      branch-table: branch_table
-#      lock-table: lock_table
-#      distributed-lock-table: distributed_lock
-#      vgroup-table: vgroup_table
-#      query-limit: 1000
-#      max-wait: 5000
-#  store:
-#    mode: redis
-#    redis:
-#      mode: single
-#      # support: lua 、 pipeline
-#      type: lua
-#      database: 0
-#      min-conn: 10
-#      max-conn: 100
-#      password:
-#      max-total: 100
-#      query-limit: 1000
-#      single:
-#        host: 127.0.0.1
-#        port: 6379
-#      sentinel:
-#        master-name:
-#        sentinel-hosts:
-#        sentinel-password:
   #  server:
   #    service-port: 8091 #If not configured, the default is '${server.port} + 1000'
   security:

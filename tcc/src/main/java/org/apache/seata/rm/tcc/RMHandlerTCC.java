@@ -21,15 +21,12 @@ import org.apache.seata.core.model.ResourceManager;
 import org.apache.seata.core.protocol.transaction.UndoLogDeleteRequest;
 import org.apache.seata.rm.AbstractRMHandler;
 import org.apache.seata.rm.DefaultResourceManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The type Rm handler tcc.
  *
  */
 public class RMHandlerTCC extends AbstractRMHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RMHandlerTCC.class);
 
     @Override
     public void handle(UndoLogDeleteRequest request) {

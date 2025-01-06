@@ -35,4 +35,5 @@ public class RMHandlerSagaAnnotation extends AbstractRMHandler {
     public BranchType getBranchType() {
         return BranchType.SAGA_ANNOTATION;
     }
+
 }
