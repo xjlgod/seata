@@ -31,7 +31,6 @@ import org.apache.seata.core.logger.StackTraceLogger;
 import org.apache.seata.core.model.BranchStatus;
 import org.apache.seata.core.model.BranchType;
 import org.apache.seata.core.model.GlobalStatus;
-import org.apache.seata.core.protocol.ResultCode;
 import org.apache.seata.core.rpc.RemotingServer;
 import org.apache.seata.server.metrics.MetricsPublisher;
 import org.apache.seata.server.session.BranchSession;
