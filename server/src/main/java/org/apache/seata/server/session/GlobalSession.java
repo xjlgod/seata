@@ -670,7 +670,6 @@ public class GlobalSession implements SessionLifecycle, SessionStorable {
             + 4 // applicationDataBytes.length
             + 8 // beginTime
             + 1 // statusCode
-            + 8 // gmtModified
             + (byApplicationIdBytes == null ? 0 : byApplicationIdBytes.length)
             + (byServiceGroupBytes == null ? 0 : byServiceGroupBytes.length)
             + (byTxNameBytes == null ? 0 : byTxNameBytes.length)

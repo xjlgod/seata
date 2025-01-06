@@ -194,6 +194,8 @@ public class DefaultCore implements Core {
                 }
                 LOGGER.info("Delete XA branch failed, xid = {} branchId = {}", globalSession.getXid(), branchSession.getBranchId());
                 break;
+            default:
+                break;
         }
 
         // branch transaction can not roll back, stop retry and delete
