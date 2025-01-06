@@ -81,7 +81,7 @@ public class DefaultCore implements Core {
 
     public static DefaultCore getInstance(RemotingServer remotingServer) {
         if (null == instance) {
-            synchronized (DefaultCoordinator.class) {
+            synchronized (DefaultCore.class) {
                 if (null == instance) {
                     instance = new DefaultCore(remotingServer);
                 }

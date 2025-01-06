@@ -68,6 +68,20 @@ public class GlobalSessionController {
     }
 
     /**
+     * Delete the global session
+     *
+     * @param xid The xid
+     * @return SingleResult<Void>
+     */
+    @DeleteMapping("forceDeleteGlobalSession")
+    public SingleResult<Void> forceDeleteGlobalSession(String xid) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("manual operation to force delete the global session, xid: {}", xid);
+        }
+        return globalSessionService.forceDeleteGlobalSession(xid);
+    }
+
+    /**
      * Stop the global session retry
      *
      * @param xid The xid

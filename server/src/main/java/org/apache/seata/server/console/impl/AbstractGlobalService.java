@@ -57,6 +57,28 @@ public abstract class AbstractGlobalService extends AbstractService implements G
     }
 
     @Override
+    public SingleResult<Void> forceDeleteGlobalSession(String xid) {
+        GlobalSession globalSession = checkGlobalSession(xid);
+        GlobalStatus globalStatus = globalSession.getStatus();
+        try {
+            if (!GlobalStatus.Deleting.equals(globalStatus)) {
+                globalSession.changeGlobalStatus(GlobalStatus.Deleting);
+            }
+            List<BranchSession> branchSessions = globalSession.getBranchSessions();
+            List<BranchSession> iteratorBranchSessions = new ArrayList<>(branchSessions);
+            for (BranchSession branchSession : iteratorBranchSessions) {
+                if (!doForceDeleteBranch(globalSession, branchSession)) {
+                    return SingleResult.failure("Delete branch fail, please try again");
+                }
+            }
+            globalSession.end();
+            return SingleResult.success(null);
+        } catch (Exception e) {
+            throw new ConsoleException(e, String.format("force delete global session fail, xid:%s", xid));
+        }
+    }
+
+    @Override
     public SingleResult<Void> stopGlobalRetry(String xid) {
         GlobalSession globalSession = checkGlobalSession(xid);
         GlobalStatus globalStatus = globalSession.getStatus();

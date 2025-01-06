@@ -42,6 +42,14 @@ public interface GlobalSessionService {
     SingleResult<Void> deleteGlobalSession(String xid);
 
     /**
+     * Force delete the global session
+     *
+     * @param xid The xid
+     * @return SingleResult<Void>
+     */
+    SingleResult<Void> forceDeleteGlobalSession(String xid);
+
+    /**
      * Stop the global session retry
      *
      * @param xid The xid

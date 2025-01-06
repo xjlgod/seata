@@ -140,6 +140,26 @@ public abstract class AbstractService {
         return false;
     }
 
+    protected boolean doForceDeleteBranch(GlobalSession globalSession, BranchSession branchSession) throws TransactionException {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Branch force delete start, xid:{} branchId:{} branchType:{}",
+                    branchSession.getXid(), branchSession.getBranchId(), branchSession.getBranchType());
+        }
+        if (branchSession.getStatus() == BranchStatus.PhaseOne_Failed) {
+            globalSession.removeBranch(branchSession);
+            return true;
+        }
+        boolean result = false;
+        if (branchSession.isAT()) {
+            result = lockManager.releaseLock(branchSession);
+        }
+        if (result) {
+            globalSession.removeBranch(branchSession);
+            return true;
+        }
+        return false;
+    }
+
     protected static class CheckResult {
         private GlobalSession globalSession;
         private BranchSession branchSession;
