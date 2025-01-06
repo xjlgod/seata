@@ -213,7 +213,7 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
             throw new IllegalArgumentException("RemotingServer not allowed be null.");
         }
         this.remotingServer = remotingServer;
-        this.core = DefaultCore.getInstance(remotingServer);
+        this.core = new DefaultCore(remotingServer);
         boolean enableBranchAsyncRemove = CONFIG.getBoolean(
                 ConfigurationKeys.ENABLE_BRANCH_ASYNC_REMOVE, DEFAULT_ENABLE_BRANCH_ASYNC_REMOVE);
         // create branchRemoveExecutor
@@ -247,6 +247,13 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
             throw new IllegalArgumentException("The instance has not been created.");
         }
         return instance;
+    }
+
+    public static DefaultCore getInstanceCore() {
+        if (null == instance) {
+            throw new IllegalArgumentException("The instance has not been created.");
+        }
+        return instance.core;
     }
 
     /**

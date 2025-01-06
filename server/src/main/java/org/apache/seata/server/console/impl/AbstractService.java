@@ -20,7 +20,7 @@ import org.apache.seata.common.util.StringUtils;
 import org.apache.seata.core.exception.TransactionException;
 import org.apache.seata.core.model.BranchStatus;
 import org.apache.seata.core.model.GlobalStatus;
-import org.apache.seata.server.coordinator.DefaultCore;
+import org.apache.seata.server.coordinator.DefaultCoordinator;
 import org.apache.seata.server.lock.LockManager;
 import org.apache.seata.server.lock.LockerManagerFactory;
 import org.apache.seata.server.session.BranchSession;
@@ -127,7 +127,7 @@ public abstract class AbstractService {
             globalSession.removeBranch(branchSession);
             return true;
         }
-        boolean result = DefaultCore.getInstance().doBranchDelete(globalSession, branchSession);
+        boolean result = DefaultCoordinator.getInstanceCore().doBranchDelete(globalSession, branchSession);
         if (result) {
             if (branchSession.isAT()) {
                 result = lockManager.releaseLock(branchSession);

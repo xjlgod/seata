@@ -69,7 +69,7 @@ public class DefaultCore implements Core {
      *
      * @param remotingServer the remoting server
      */
-    protected DefaultCore(RemotingServer remotingServer) {
+    public DefaultCore(RemotingServer remotingServer) {
         List<AbstractCore> allCore = EnhancedServiceLoader.loadAll(AbstractCore.class,
             new Class[] {RemotingServer.class}, new Object[] {remotingServer});
         if (CollectionUtils.isNotEmpty(allCore)) {
@@ -78,26 +78,6 @@ public class DefaultCore implements Core {
             }
         }
     }
-
-    public static DefaultCore getInstance(RemotingServer remotingServer) {
-        if (null == instance) {
-            synchronized (DefaultCore.class) {
-                if (null == instance) {
-                    instance = new DefaultCore(remotingServer);
-                }
-            }
-        }
-        return instance;
-    }
-
-    public static DefaultCore getInstance() {
-        if (null == instance) {
-            throw new IllegalArgumentException("The instance has not been created.");
-        }
-        return instance;
-    }
-
-
     /**
      * get core
      *

@@ -79,7 +79,7 @@ public class DefaultCoreTest {
     public static void initSessionManager(ApplicationContext context) throws Exception {
         SessionHolder.init(SessionMode.FILE);
         remotingServer = new DefaultCoordinatorTest.MockServerMessageSender();
-        core = DefaultCore.getInstance(remotingServer);;
+        core = new DefaultCore(remotingServer);;
     }
 
     /**
