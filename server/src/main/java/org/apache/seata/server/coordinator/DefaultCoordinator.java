@@ -256,7 +256,7 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
         return core.doGlobalCommit(globalSession, retrying);
     }
 
-    public boolean doGlobalRollback(GlobalSession globalSession, boolean retrying) throws TransactionException{
+    public boolean doGlobalRollback(GlobalSession globalSession, boolean retrying) throws TransactionException {
         if (globalSession == null) {
             return true;
         }
