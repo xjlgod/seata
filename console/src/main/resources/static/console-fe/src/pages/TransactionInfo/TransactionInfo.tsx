@@ -21,7 +21,8 @@ import { withRouter } from 'react-router-dom';
 import Page from '@/components/Page';
 import { GlobalProps } from '@/module';
 import styled, { css } from 'styled-components';
-import getData, { changeGlobalData, deleteBranchData, deleteGlobalData, GlobalSessionParam, sendGlobalCommitOrRollback, startBranchData, startGlobalData, stopBranchData, stopGlobalData } from '@/service/transactionInfo';
+import getData, { changeGlobalData, deleteBranchData, deleteGlobalData, GlobalSessionParam, sendGlobalCommitOrRollback,
+  startBranchData, startGlobalData, stopBranchData, stopGlobalData, forceDeleteGlobalData, forceDeleteBranchData } from '@/service/transactionInfo';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 
@@ -261,6 +262,14 @@ const warnning = new Map([
     new Map([['AT', 'The global lock and undo log will be deleted too, dirty write problem exists.'],
       ['XA', 'The xa branch will rollback'], ['TCC', ''], ['SAGA', '']])],
   ['deleteGlobalSession', new Map([['AT', ''], ['XA', ''], ['TCC', ''], ['SAGA', '']])],
+  ['forceDeleteBranchSession',
+    new Map([['AT', 'The force delete will only delete session in server.'],
+      ['XA', 'The force delete will only delete session in server.'],
+      ['TCC', 'The force delete will only delete session in server.'], ['SAGA', 'The force delete will only delete session in server.']])],
+  ['forceDeleteGlobalSession', new Map([['AT', 'The force delete will only delete session in server.'],
+    ['XA', 'The force delete will only delete session in server.'],
+    ['TCC', 'The force delete will only delete session in server.'],
+    ['SAGA', 'The force delete will only delete session in server.']])],
 ])
 
 class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState> {
@@ -403,17 +412,18 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
       showBranchSessionTitle,
       showGlobalLockTitle,
       deleteGlobalSessionTitle,
+      forceDeleteGlobalSessionTitle,
       stopGlobalSessionTitle,
       startGlobalSessionTitle,
       sendGlobalSessionTitle,
       changeGlobalSessionTitle,
     } = locale;
     let width = getCurrentLanguage() === enUsKey ? '450px' : '420px'
-    let height = this.state.globalSessionParam.withBranch ? '120px' : '80px';
+    let height = '120px';
     return (
       <Actions style={{ width: width,
         height: height,
-      }} threshold = {7} wrap = {true} >
+      }} threshold = {8} wrap = {true} >
         {/* {when withBranch false, hide 'View branch session' button} */}
         {this.state.globalSessionParam.withBranch ? (
           <LinkButton
@@ -441,7 +451,7 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
               title: 'Confirm',
               content: 'Are you sure you want to delete global transactions',
               onOk: () => {
-                const warnMessageMap = warnning.get('deleteBranchSession')
+                const warnMessageMap = warnning.get('deleteGlobalSession')
                 let warnMessage = ''
                 if (warnMessageMap != null) {
                   for (const [key, value] of warnMessageMap) {
@@ -468,6 +478,41 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
           }}
         >
           {deleteGlobalSessionTitle}
+        </Button>
+
+        <Button
+          onClick={() => {
+            Dialog.confirm({
+              title: 'Confirm',
+              content: 'Are you sure you want to force delete global transactions',
+              onOk: () => {
+                const warnMessageMap = warnning.get('forceDeleteGlobalSession')
+                let warnMessage = ''
+                if (warnMessageMap != null) {
+                  for (const [key, value] of warnMessageMap) {
+                    if (value == '') {
+                      continue
+                    }
+                    warnMessage += key + ':' + '<br>' + value + '<br>'
+                  }
+                }
+                Dialog.confirm({
+                  title: 'Warnning',
+                  content: <div dangerouslySetInnerHTML={{__html: commonWarnning + '<br>' + warnMessage}}/>,
+                  onOk: () => {
+                    forceDeleteGlobalData(record).then((rsp) => {
+                      Message.success("Delete successfully")
+                      this.search()
+                    }).catch((rsp) => {
+                      Message.error(lodashGet(rsp, 'data.message'))
+                    })
+                  }
+                });
+              }
+            });
+          }}
+        >
+          {forceDeleteGlobalSessionTitle}
         </Button>
 
         {record.status == 19 || record.status == 20 ? (
@@ -556,13 +601,14 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
       deleteBranchSessionTitle,
       stopBranchSessionTitle,
       startBranchSessionTitle,
+      forceDeleteBranchSessionTitle,
     } = locale;
     let width = getCurrentLanguage() === enUsKey ? '500px' : '450px'
-    let height = '40px';
+    let height = '120px';
     return (
       <Actions style={{ width: width,
         height: height,
-      }} threshold = {7} wrap = {true} >
+      }} threshold = {8} wrap = {true} >
         <LinkButton
           onClick={() => {
             history.push({
@@ -600,6 +646,32 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
           }}
         >
           {deleteBranchSessionTitle}
+        </Button>
+
+        <Button
+          onClick={() => {
+            Dialog.confirm({
+              title: 'Confirm',
+              content: 'Are you sure you want to force delete branch transactions',
+              onOk: () => {
+                let warnMessage = warnning.get('forceDeleteBranchSession')!.get(record.branchType);
+                Dialog.confirm({
+                  title: 'Warnning',
+                  content: <div dangerouslySetInnerHTML={{__html: commonWarnning + '<br>' + warnMessage}}/>,
+                  onOk: () => {
+                    forceDeleteBranchData(record).then((rsp) => {
+                      Message.success("Delete successfully")
+                      this.search()
+                    }).catch((rsp) => {
+                      Message.error(lodashGet(rsp, 'data.message'))
+                    })
+                  }
+                });
+              }
+            });
+          }}
+        >
+          {forceDeleteBranchSessionTitle}
         </Button>
 
         {record.status == 13 ? (

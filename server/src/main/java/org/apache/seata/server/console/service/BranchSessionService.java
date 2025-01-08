@@ -33,13 +33,22 @@ public interface BranchSessionService {
     PageResult<BranchSessionVO> queryByXid(String xid);
 
     /**
-     * Stop branch transaction retry
+     * Delete branch transaction retry
      *
      * @param xid      the global transaction
      * @param branchId the branch transaction
      * @return SingleResult<Void>
      */
     SingleResult<Void> deleteBranchSession(String xid, String branchId);
+
+    /**
+     * Force delete branch transaction retry
+     *
+     * @param xid      the global transaction
+     * @param branchId the branch transaction
+     * @return SingleResult<Void>
+     */
+    SingleResult<Void> forceDeleteBranchSession(String xid, String branchId);
 
     /**
      * Start branch transaction retry

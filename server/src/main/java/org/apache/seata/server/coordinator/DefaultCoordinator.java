@@ -249,11 +249,28 @@ public class DefaultCoordinator extends AbstractTCInboundHandler implements Tran
         return instance;
     }
 
-    public static DefaultCore getInstanceCore() {
-        if (null == instance) {
-            throw new IllegalArgumentException("The instance has not been created.");
+    public boolean doGlobalCommit(GlobalSession globalSession, boolean retrying) throws TransactionException {
+        if (globalSession == null) {
+            return true;
         }
-        return instance.core;
+        return core.doGlobalCommit(globalSession, retrying);
+    }
+
+    public boolean doGlobalRollback(GlobalSession globalSession, boolean retrying) throws TransactionException{
+        if (globalSession == null) {
+            return true;
+        }
+        return core.doGlobalRollback(globalSession, retrying);
+    }
+
+    public Boolean doBranchDelete(GlobalSession globalSession, BranchSession branchSession) throws TransactionException {
+        if (globalSession == null) {
+            return true;
+        }
+        if (branchSession == null) {
+            return true;
+        }
+        return core.doBranchDelete(globalSession, branchSession);
     }
 
     /**

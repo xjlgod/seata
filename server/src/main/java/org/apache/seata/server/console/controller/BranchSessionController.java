@@ -54,6 +54,21 @@ public class BranchSessionController {
     }
 
     /**
+     * Delete branch transaction
+     *
+     * @param xid      the branch of xid
+     * @param branchId the branch  id
+     * @return SingleResult<Void>
+     */
+    @DeleteMapping("forceDeleteBranchSession")
+    public SingleResult<Void> forceDeleteBranchSession(String xid, String branchId) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("manual operation to delete the branch session, xid: {} branchId: {}", xid, branchId);
+        }
+        return branchSessionService.forceDeleteBranchSession(xid, branchId);
+    }
+
+    /**
      * Stop branch transaction retry
      *
      * @param xid      the branch of xid

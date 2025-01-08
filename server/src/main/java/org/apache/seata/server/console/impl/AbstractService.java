@@ -127,7 +127,7 @@ public abstract class AbstractService {
             globalSession.removeBranch(branchSession);
             return true;
         }
-        boolean result = DefaultCoordinator.getInstanceCore().doBranchDelete(globalSession, branchSession);
+        boolean result = DefaultCoordinator.getInstance().doBranchDelete(globalSession, branchSession);
         if (result) {
             if (branchSession.isAT()) {
                 result = lockManager.releaseLock(branchSession);
@@ -145,19 +145,8 @@ public abstract class AbstractService {
             LOGGER.debug("Branch force delete start, xid:{} branchId:{} branchType:{}",
                     branchSession.getXid(), branchSession.getBranchId(), branchSession.getBranchType());
         }
-        if (branchSession.getStatus() == BranchStatus.PhaseOne_Failed) {
-            globalSession.removeBranch(branchSession);
-            return true;
-        }
-        boolean result = false;
-        if (branchSession.isAT()) {
-            result = lockManager.releaseLock(branchSession);
-        }
-        if (result) {
-            globalSession.removeBranch(branchSession);
-            return true;
-        }
-        return false;
+        globalSession.removeBranch(branchSession);
+        return true;
     }
 
     protected static class CheckResult {

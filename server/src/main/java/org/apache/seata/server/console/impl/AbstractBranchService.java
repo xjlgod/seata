@@ -106,4 +106,22 @@ public abstract class AbstractBranchService extends AbstractService implements B
         }
         throw new IllegalArgumentException("current global transaction is not support delete branch transaction");
     }
+
+    @Override
+    public SingleResult<Void> forceDeleteBranchSession(String xid, String branchId) {
+        CheckResult checkResult = commonCheckAndGetGlobalStatus(xid, branchId);
+        GlobalSession globalSession = checkResult.getGlobalSession();
+        // saga is not support to operate
+        if (globalSession.isSaga()) {
+            throw new IllegalArgumentException("saga can not operate branch transactions because it have no determinative role");
+        }
+        BranchSession branchSession = checkResult.getBranchSession();
+        try {
+            boolean deleted = doForceDeleteBranch(globalSession, branchSession);
+            return deleted ? SingleResult.success() :
+                    SingleResult.failure("delete branch fail, please retry again later");
+        } catch (Exception e) {
+            throw new ConsoleException(e, String.format("delete branch session fail, xid:%s, branchId:%s", xid, branchId));
+        }
+    }
 }

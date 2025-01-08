@@ -68,7 +68,7 @@ public abstract class AbstractGlobalService extends AbstractService implements G
             List<BranchSession> iteratorBranchSessions = new ArrayList<>(branchSessions);
             for (BranchSession branchSession : iteratorBranchSessions) {
                 if (!doForceDeleteBranch(globalSession, branchSession)) {
-                    return SingleResult.failure("Delete branch fail, please try again");
+                    return SingleResult.failure("Force delete branch fail, please try again");
                 }
             }
             globalSession.end();
@@ -121,7 +121,7 @@ public abstract class AbstractGlobalService extends AbstractService implements G
             boolean res;
             if (RETRY_COMMIT_STATUS.contains(globalStatus) || GlobalStatus.Committing.equals(globalStatus)
                     || GlobalStatus.StopCommitOrCommitRetry.equals(globalStatus)) {
-                res = DefaultCoordinator.getInstanceCore().doGlobalCommit(globalSession, false);
+                res = DefaultCoordinator.getInstance().doGlobalCommit(globalSession, false);
                 if (res && globalSession.hasBranch() && globalSession.hasATBranch()) {
                     globalSession.clean();
                     globalSession.asyncCommit();
@@ -130,7 +130,7 @@ public abstract class AbstractGlobalService extends AbstractService implements G
                 }
             } else if (RETRY_ROLLBACK_STATUS.contains(globalStatus) || GlobalStatus.Rollbacking.equals(globalStatus)
                     || GlobalStatus.StopRollbackOrRollbackRetry.equals(globalStatus)) {
-                res = DefaultCoordinator.getInstanceCore().doGlobalRollback(globalSession, false);
+                res = DefaultCoordinator.getInstance().doGlobalRollback(globalSession, false);
                 // the record is not deleted
                 if (res && SessionHolder.findGlobalSession(xid) != null) {
                     globalSession.changeGlobalStatus(GlobalStatus.Rollbacked);

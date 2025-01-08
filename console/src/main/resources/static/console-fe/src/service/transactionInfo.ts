@@ -56,6 +56,17 @@ export async function deleteGlobalData(params: GlobalSessionParam): Promise<any>
   return result;
 }
 
+export async function forceDeleteGlobalData(params: GlobalSessionParam): Promise<any> {
+  const xid = params.xid
+  let result = await request('/console/globalSession/forceDeleteGlobalSession', {
+    method: 'delete',
+    params: {
+      xid
+    },
+  });
+  return result;
+}
+
 export async function stopGlobalData(params: GlobalSessionParam): Promise<any> {
   const xid = params.xid
   let result = await request('/console/globalSession/stopGlobalSession', {
@@ -104,6 +115,19 @@ export async function deleteBranchData(params: BranchSessionParam): Promise<any>
   const xid = params.xid
   const branchId = params.branchId
   let result = await request('/console/branchSession/deleteBranchSession', {
+    method: 'delete',
+    params: {
+      xid,
+      branchId
+    },
+  });
+  return result;
+}
+
+export async function forceDeleteBranchData(params: BranchSessionParam): Promise<any> {
+  const xid = params.xid
+  const branchId = params.branchId
+  let result = await request('/console/branchSession/forceDeleteBranchSession', {
     method: 'delete',
     params: {
       xid,
