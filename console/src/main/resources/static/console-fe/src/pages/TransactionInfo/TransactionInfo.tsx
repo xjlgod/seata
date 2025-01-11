@@ -247,8 +247,26 @@ const branchSessionStatusList:Array<StatusType> = [
     iconColor: '#FF3333',
   },
   {
-    label: 'STOP_RETRY',
+    label: 'PhaseTwo_CommitFailed_XAER_NOTA_Retryable',
+    value: 11,
+    iconType: 'error',
+    iconColor: '#FF3333',
+  },
+  {
+    label: 'PhaseTwo_RollbackFailed_XAER_NOTA_Retryable',
+    value: 12,
+    iconType: 'error',
+    iconColor: '#FF3333',
+  },
+  {
+    label: 'PhaseOne_RDONLY',
     value: 13,
+    iconType: 'error',
+    iconColor: '#FF3333',
+  },
+  {
+    label: 'STOP_RETRY',
+    value: 14,
     iconType: 'ellipsis',
     iconColor: 'rgb(3, 193, 253)',
   },
@@ -520,7 +538,7 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
             onClick={() => {
               Dialog.confirm({
                 title: 'Confirm',
-                content: 'Are you sure you want to stop restart global transactions',
+                content: 'Are you sure you want to start restart global transactions',
                 onOk: () => {
                   startGlobalData(record).then((rsp) => {
                     Message.success("Start successfully")
@@ -674,12 +692,12 @@ class TransactionInfo extends React.Component<GlobalProps, TransactionInfoState>
           {forceDeleteBranchSessionTitle}
         </Button>
 
-        {record.status == 13 ? (
+        {record.status == 14 ? (
           <Button
             onClick={() => {
               Dialog.confirm({
                 title: 'Confirm',
-                content: 'Are you sure you want to stop branch transactions retry',
+                content: 'Are you sure you want to start branch transactions retry',
                 onOk: () => {
                   startBranchData(record).then((rsp) => {
                     Message.success("Start successfully")
