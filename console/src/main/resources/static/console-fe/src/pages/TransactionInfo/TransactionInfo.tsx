@@ -265,7 +265,7 @@ const branchSessionStatusList:Array<StatusType> = [
     iconColor: '#FF3333',
   },
   {
-    label: 'STOP_RETRY',
+    label: 'Stop_Retry',
     value: 14,
     iconType: 'ellipsis',
     iconColor: 'rgb(3, 193, 253)',
