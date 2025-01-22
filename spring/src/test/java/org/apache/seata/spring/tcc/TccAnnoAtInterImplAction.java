@@ -14,40 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.seata.common.util;
+package org.apache.seata.spring.tcc;
 
-import org.apache.seata.common.lock.ResourceLock;
+import org.apache.seata.rm.tcc.api.BusinessActionContext;
 
-/**
- * The type Uuid generator.
- */
-public class UUIDGenerator {
 
-    private static volatile IdWorker idWorker;
-    private final static ResourceLock RESOURCE_LOCK = new ResourceLock();
+public interface TccAnnoAtInterImplAction {
 
     /**
-     * generate UUID using snowflake algorithm
+     * Prepare boolean.
      *
-     * @return UUID
+     * @param actionContext the action context
+     * @return the boolean
      */
-    public static long generateUUID() {
-        if (idWorker == null) {
-            try (ResourceLock ignored = RESOURCE_LOCK.obtain()) {
-                if (idWorker == null) {
-                    init(null);
-                }
-            }
-        }
-        return idWorker.nextId();
-    }
+    boolean prepare(BusinessActionContext actionContext);
 
     /**
-     * init IdWorker
+     * Commit boolean.
      *
-     * @param serverNode the server node id, consider as machine id in snowflake
+     * @param actionContext the action context
+     * @return the boolean
      */
-    public static void init(Long serverNode) {
-        idWorker = new IdWorker(serverNode);
-    }
+    boolean commit(BusinessActionContext actionContext);
+
+    /**
+     * Rollback boolean.
+     *
+     * @param actionContext the action context
+     * @return the boolean
+     */
+    boolean rollback(BusinessActionContext actionContext);
+
 }
